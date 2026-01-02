@@ -4,4 +4,4 @@ venv/
 keypair1.pem
 aws.sh
 logs/*
-!logs
+!logs/test
