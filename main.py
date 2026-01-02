@@ -31,7 +31,7 @@ async def on_message(message):
 
 # !say
 @bot.command()
-@commands.has_role('grape')
+# @commands.has_role('grape')
 async def say(ctx, *, message):
     await ctx.send(message)
 
@@ -99,6 +99,9 @@ async def view(ctx, *, message):
 
 @bot.event
 async def on_command_error(ctx, error):
-    await ctx.send(f"heck you {ctx.author.mention}")
+    if isinstance(error, commands.MissingRole):
+        await ctx.send(f"heck you {ctx.author.mention}")
+    else:
+        raise error
 
 bot.run(token, log_handler=handler, log_level=logging.DEBUG)
