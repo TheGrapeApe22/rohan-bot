@@ -31,6 +31,7 @@ async def on_message(message):
 
 # !say
 @bot.command()
+@commands.has_role('grape')
 async def say(ctx, *, message):
     await ctx.send(message)
 
@@ -49,6 +50,7 @@ async def reminders():
 
 # !start
 @bot.command()
+@commands.has_role('grape')
 async def start(ctx):
     global target_context
     if not reminders.is_running():
@@ -60,6 +62,7 @@ async def start(ctx):
 
 # !stop
 @bot.command()
+@commands.has_role('grape')
 async def stop(ctx):
     if reminders.is_running():
         reminders.stop()
@@ -69,6 +72,7 @@ async def stop(ctx):
 
 # !setdelay
 @bot.command()
+@commands.has_role('grape')
 async def setdelay(ctx, minutes: float):
     reminders.change_interval(minutes=minutes)
     clamped = max(0.1, minutes)
@@ -76,6 +80,7 @@ async def setdelay(ctx, minutes: float):
     await ctx.send(f"delay changed to {clamped} minutes")
 
 @bot.command()
+@commands.has_role('grape')
 async def doing(ctx, *, message):
     timestamp = ctx.message.created_at.astimezone(timezone).strftime('%I:%M:%S %p')
     with open(current_log_path(), "a") as f:
@@ -83,6 +88,7 @@ async def doing(ctx, *, message):
     await ctx.message.add_reaction('🧀')
 
 @bot.command()
+@commands.has_role('grape')
 async def view(ctx, *, message):
     path = current_log_path() # if message.strip() == "today" else f"logs/{message.strip()}"
     try:
@@ -90,5 +96,9 @@ async def view(ctx, *, message):
             await ctx.send(f"```{log_file.read()}```")
     except FileNotFoundError:
         await ctx.send(f"file '{message.strip()}' not found. usage: `!view mm-dd-yyyy.txt`")
+
+@bot.event
+async def on_command_error(ctx, error):
+    await ctx.send(f"heck you {ctx.author.mention}")
 
 bot.run(token, log_handler=handler, log_level=logging.DEBUG)
