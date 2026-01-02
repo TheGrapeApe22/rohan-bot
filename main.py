@@ -82,13 +82,14 @@ async def doing(ctx, *, message):
         f.write(f'{timestamp}: {message}\n')
     await ctx.message.add_reaction('🧀')
 
-@bot.command()
-async def view(ctx, *, message):
-    path = current_log_path() if message.strip() == "today" else f"logs/{message.strip()}"
-    try:
-        with open(path, "r") as log_file:
-            await ctx.send(f"```{log_file.read()}```")
-    except FileNotFoundError:
-        await ctx.send(f"file '{message.strip()}' not found. usage: `!view mm-dd-yyyy.txt`")
+# @bot.command()
+# async def view(ctx, *, message):
+#     strippedd = message.strip()
+#     path = current_log_path() if message.strip() == "today" else f"logs/{message.strip()}"
+#     try:
+#         with open(path, "r") as log_file:
+#             await ctx.send(f"```{log_file.read()}```")
+#     except FileNotFoundError:
+#         await ctx.send(f"file '{message.strip()}' not found. usage: `!view mm-dd-yyyy.txt`")
 
 bot.run(token, log_handler=handler, log_level=logging.DEBUG)
