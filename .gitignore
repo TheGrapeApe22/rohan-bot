@@ -3,3 +3,4 @@ venv/
 logs/
 *.log
 keypair1.pem
+aws.sh
