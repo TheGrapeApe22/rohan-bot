@@ -18,7 +18,16 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f"ready {bot.user.name}")
+    print(f"{bot.user.name} is now running!")
+
+# reply "heck you" when pinged
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+    if bot.user.mentioned_in(message):
+        await message.reply(f"heck you", mention_author=False)
+    await bot.process_commands(message)
 
 # !say
 @bot.command()
@@ -26,7 +35,8 @@ async def say(ctx, *, message):
     await ctx.send(message)
 
 def current_log_path():
-    return f"logs/{datetime.now(timezone).strftime("%m-%d-%Y")}.txt"
+    date = datetime.now(timezone).strftime("%m-%d-%Y")
+    return f"logs/{date}.txt"
 
 # where to send reminders
 target_context = None
@@ -67,18 +77,18 @@ async def setdelay(ctx, minutes: float):
 
 @bot.command()
 async def doing(ctx, *, message):
-    timestamp = ctx.message.created_at.astimezone(timezone).strftime('%Y-%m-%d %H:%M:%S')
+    timestamp = ctx.message.created_at.astimezone(timezone).strftime('%I:%M:%S %p')
     with open(current_log_path(), "a") as f:
-        f.write(f'{timestamp}: "{message}"\n')
+        f.write(f'{timestamp}: {message}\n')
     await ctx.message.add_reaction('🧀')
 
 @bot.command()
-async def today(ctx):
+async def view(ctx, *, message):
+    path = current_log_path() if message.strip() == "today" else f"logs/{message.strip()}"
     try:
-        with open(current_log_path(), "r") as f:
-            content = f.read()
-            await ctx.send(f"```{content}```")
+        with open(path, "r") as log_file:
+            await ctx.send(f"```{log_file.read()}```")
     except FileNotFoundError:
-        await ctx.send("file not found")
+        await ctx.send(f"file '{message.strip()}' not found. usage: `!view mm-dd-yyyy.txt`")
 
 bot.run(token, log_handler=handler, log_level=logging.DEBUG)
