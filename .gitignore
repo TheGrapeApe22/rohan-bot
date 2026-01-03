@@ -2,6 +2,7 @@ venv/
 .env
 *.log
 keypair1.pem
+keypair2.pem
 aws.sh
 logs/*
 !logs/test
