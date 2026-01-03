@@ -42,8 +42,9 @@ def current_log_path():
 # where to send reminders
 target_context = None
 
-# reminder every 5 mins
-@tasks.loop(minutes=5)
+# reminder every {current_delay} mins
+current_delay = 5.0
+@tasks.loop(minutes=current_delay)
 async def reminders():
     if target_context:
         await target_context.send(f"-# what are you doing {target_context.author.mention}")
@@ -65,7 +66,7 @@ async def start(ctx):
 @commands.has_role('grape')
 async def stop(ctx):
     if reminders.is_running():
-        reminders.stop()
+        reminders.cancel()
         await ctx.send("stopped")
     else:
         await ctx.send("not running")
@@ -74,11 +75,19 @@ async def stop(ctx):
 @bot.command()
 @commands.has_role('grape')
 async def setdelay(ctx, minutes: float):
-    reminders.change_interval(minutes=minutes)
-    clamped = max(0.1, minutes)
-    reminders.change_interval(minutes=clamped)
-    await ctx.send(f"delay changed to {clamped} minutes")
+    global current_delay
+    current_delay = max(0.1, minutes)
+    reminders.change_interval(minutes=current_delay)
+    reminders.restart()
+    await ctx.send(f"delay changed to {current_delay} minutes")
 
+# !delay
+@bot.command()
+@commands.has_role('grape')
+async def delay(ctx):
+    await ctx.send(f"current delay is {current_delay} minutes")
+
+# !doing
 @bot.command()
 @commands.has_role('grape')
 async def doing(ctx, *, message):
@@ -87,6 +96,7 @@ async def doing(ctx, *, message):
         f.write(f'{timestamp}: {message}\n')
     await ctx.message.add_reaction('🧀')
 
+# !view
 @bot.command()
 @commands.has_role('grape')
 async def view(ctx, *, message):
@@ -97,6 +107,7 @@ async def view(ctx, *, message):
     except FileNotFoundError:
         await ctx.send(f"file '{message.strip()}' not found. usage: `!view mm-dd-yyyy.txt`")
 
+# send heck you to non-grapes
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRole):
