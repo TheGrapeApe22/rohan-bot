@@ -14,11 +14,11 @@ intents.message_content = True
 intents.members = True
 
 timezone = ZoneInfo("America/Los_Angeles")
-bot = commands.Bot(command_prefix='!', intents=intents)
+bot = commands.Bot(command_prefix='.', intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f"{bot.user.name} is now running!")
+    print(f"{bot.user.name} is now running.")
 
 # reply "heck you" when pinged
 @bot.event
@@ -29,7 +29,7 @@ async def on_message(message):
         await message.reply(f"heck you", mention_author=False)
     await bot.process_commands(message)
 
-# !say
+# .say
 @bot.command()
 # @commands.has_role('grape')
 async def say(ctx, *, message):
@@ -49,7 +49,7 @@ async def reminders():
     if target_context:
         await target_context.send(f"-# what are you doing {target_context.author.mention}")
 
-# !start
+# .start
 @bot.command()
 @commands.has_role('grape')
 async def start(ctx):
@@ -61,7 +61,7 @@ async def start(ctx):
     else:
         await ctx.send("already running")
 
-# !stop
+# .stop
 @bot.command()
 @commands.has_role('grape')
 async def stop(ctx):
@@ -71,7 +71,7 @@ async def stop(ctx):
     else:
         await ctx.send("not running")
 
-# !setdelay
+# .setdelay
 @bot.command()
 @commands.has_role('grape')
 async def setdelay(ctx, minutes: float):
@@ -81,37 +81,46 @@ async def setdelay(ctx, minutes: float):
     reminders.restart()
     await ctx.send(f"delay changed to {current_delay} minutes")
 
-# !delay
+# .delay
 @bot.command()
 @commands.has_role('grape')
 async def delay(ctx):
     await ctx.send(f"current delay is {current_delay} minutes")
 
-# !doing
+# .log
 @bot.command()
 @commands.has_role('grape')
-async def doing(ctx, *, message):
+async def log(ctx, *, message):
     timestamp = ctx.message.created_at.astimezone(timezone).strftime('%I:%M:%S %p')
     with open(current_log_path(), "a") as f:
         f.write(f'{timestamp}: {message}\n')
     await ctx.message.add_reaction('🧀')
 
-# !view
+# .view
 @bot.command()
 @commands.has_role('grape')
-async def view(ctx, *, message):
-    path = current_log_path() # if message.strip() == "today" else f"logs/{message.strip()}"
+async def view(ctx, *, message=None):
+    path = current_log_path() if message is None else f"logs/{message.strip()}.txt"
+    path = os.path.realpath(path)
+    
+    # prevent directory traversal attack
+    logs_dir = os.path.realpath('logs')
+    if os.path.commonpath([path, logs_dir]) != os.path.commonpath([logs_dir]):
+        await ctx.message.reply("heck you (access denied)", mention_author=False)
+        return
     try:
         with open(path, "r") as log_file:
             await ctx.send(f"```{log_file.read()}```")
     except FileNotFoundError:
-        await ctx.send(f"file '{message.strip()}' not found. usage: `!view mm-dd-yyyy.txt`")
+        await ctx.send(f"file '{path}' not found. usage: `.view mm-dd-yyyy.txt`")
+    except Exception as e:
+        await ctx.send(f"error: {e}")
 
 # send heck you to non-grapes
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRole):
-        await ctx.send(f"heck you {ctx.author.mention}")
+        await ctx.message.reply(f"heck you {ctx.author.mention} (no perms)", mention_author=False)
     else:
         raise error
 
