@@ -6,4 +6,4 @@ keypair2.pem
 aws.sh
 logs/*
 !logs/test.txt
-copy_logs.sh
+save_logs.sh
