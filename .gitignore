@@ -5,4 +5,5 @@ keypair1.pem
 keypair2.pem
 aws.sh
 logs/*
-!logs/test
+!logs/test.txt
+copy_logs.sh
