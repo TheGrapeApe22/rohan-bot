@@ -44,13 +44,18 @@ def current_log_path():
 
 # where to send reminders
 target_context = None
+last_reminder = None
 
 # reminder every {current_delay} mins
 current_delay = 5.0
 @tasks.loop(minutes=current_delay)
 async def reminders():
+    global last_reminder
     if target_context:
-        await reply(target_context, f"-# what are you doing {target_context.author.mention}")
+        if last_reminder:
+            await last_reminder.delete()
+        last_reminder = await reply(target_context, f"-# what are you doing {target_context.author.mention} ({reminders.current_loop})")
+        
 
 # .start
 @bot.command()
