@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from utils import reply
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
@@ -15,9 +16,6 @@ intents.members = True
 
 timezone = ZoneInfo("America/Los_Angeles")
 bot = commands.Bot(command_prefix='.', intents=intents)
-
-def reply(message, reply_text):
-    return message.reply(reply_text, mention_author=False)
 
 @bot.event
 async def on_ready():

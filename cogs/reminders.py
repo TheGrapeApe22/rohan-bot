@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands, tasks
-from main import reply
+from utils import reply
 
 class Reminders(commands.Cog):
     def __init__(self, bot: commands.Bot):
