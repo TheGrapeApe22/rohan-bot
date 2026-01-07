@@ -7,3 +7,4 @@ aws.sh
 logs/*
 !logs/test.txt
 save_logs.sh
+**/__pycache__
