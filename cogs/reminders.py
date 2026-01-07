@@ -25,19 +25,31 @@ class Reminders(commands.Cog):
         stream = self.user_streams.get(user_id)
         if stream is None:
             return
+        # delete last message
         if stream.last_reminder_message:
             try:
                 await stream.last_reminder_message.delete()
             except Exception:
                 pass
+        # send reminder message
         try:
             loop_index = stream.reminder_loop.current_loop
-            stream.last_reminder_message = await target_context.send(
-                f"-# what are you doing {target_context.author.mention} ({loop_index})"
-            )
+            stream.last_reminder_message = await target_context.send(f"-# what are you doing {target_context.author.mention} ({loop_index})")
         except Exception as e:
             await target_context.send(f"error: unable to send reminder ({e})")
             stream.reminder_loop.cancel()
+
+    def create_loop(self, minutes: float, user_id: int) -> tasks.Loop:
+        return tasks.Loop(
+            self._run_user_reminder,
+            seconds=0.0,
+            minutes=minutes,
+            hours=0.0,
+            time=discord.utils.MISSING,
+            count=None,
+            reconnect=True,
+            name=f"user-{user_id}-reminder",
+        )
 
     @commands.command(name="start")
     @commands.has_role('grape')
@@ -47,18 +59,8 @@ class Reminders(commands.Cog):
             await reply(command_context.message, "already running")
             return
         initial_delay = self.user_streams[user_id].current_delay_minutes if user_id in self.user_streams else self.default_delay_minutes
-        user_loop = tasks.Loop(
-            self._run_user_reminder,
-            seconds=0.0,
-            minutes=initial_delay,
-            hours=0.0,
-            time=discord.utils.MISSING,
-            count=None,
-            reconnect=True,
-            name=f"user-{user_id}-reminder",
-        )
         user_stream = ReminderStream(
-            reminder_loop=user_loop,
+            reminder_loop=self.create_loop(initial_delay, user_id),
             target_context=command_context,
             last_reminder_message=None,
             current_delay_minutes=initial_delay,
@@ -86,18 +88,8 @@ class Reminders(commands.Cog):
         safe_delay = max(0.1, minutes)
         stream = self.user_streams.get(user_id)
         if not stream:
-            user_loop = tasks.Loop(
-                self._run_user_reminder,
-                seconds=0.0,
-                minutes=safe_delay,
-                hours=0.0,
-                time=discord.utils.MISSING,
-                count=None,
-                reconnect=True,
-                name=f"user-{user_id}-reminder",
-            )
             stream = ReminderStream(
-                reminder_loop=user_loop,
+                reminder_loop=self.create_loop(safe_delay, user_id),
                 target_context=command_context,
                 last_reminder_message=None,
                 current_delay_minutes=safe_delay,
