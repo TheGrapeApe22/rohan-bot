@@ -13,14 +13,17 @@ class Reminders(commands.Cog):
     async def reminders(self):
         if not self.target_context:
             return
-        try:
-            # delete last reminder
-            if self.last_reminder:
+        # delete last reminder
+        if self.last_reminder:
+            try:
                 await self.last_reminder.delete()
-            # what are you doing
-            self.last_reminder = await reply(self.target_context.message, f"-# what are you doing {self.target_context.author.mention} ({self.reminders.current_loop})")
-        except Exception:
-            await reply(self.target_context.message, f"error: unable to send reminder ({Exception})")
+            except:
+                pass
+        # send reminder
+        try:
+            self.last_reminder = await self.target_context.send(f"-# what are you doing {self.target_context.author.mention} ({self.reminders.current_loop})")
+        except Exception as e:
+            await self.target_context.send(f"error: unable to send reminder ({e})")
             self.reminders.cancel()
 
     @commands.command(name="start")
