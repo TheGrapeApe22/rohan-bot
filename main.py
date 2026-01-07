@@ -42,59 +42,6 @@ def current_log_path():
     date = datetime.now(timezone).strftime("%m-%d-%Y")
     return f"logs/{date}.txt"
 
-# where to send reminders
-target_context = None
-last_reminder = None
-
-# reminder every {current_delay} mins
-current_delay = 5.0
-@tasks.loop(minutes=current_delay)
-async def reminders():
-    global last_reminder
-    if target_context:
-        if last_reminder:
-            await last_reminder.delete()
-        last_reminder = await reply(target_context, f"-# what are you doing {target_context.author.mention} ({reminders.current_loop})")
-        
-
-# .start
-@bot.command()
-@commands.has_role('grape')
-async def start(ctx):
-    global target_context
-    if not reminders.is_running():
-        target_context = ctx
-        reminders.start()
-        await reply(ctx.message, "started")
-    else:
-        await reply(ctx.message, "already running")
-
-# .stop
-@bot.command()
-@commands.has_role('grape')
-async def stop(ctx):
-    if reminders.is_running():
-        reminders.cancel()
-        await reply(ctx.message, "stopped")
-    else:
-        await reply(ctx.message, "not running")
-
-# .setdelay
-@bot.command()
-@commands.has_role('grape')
-async def setdelay(ctx, minutes: float):
-    global current_delay
-    current_delay = max(0.1, minutes)
-    reminders.change_interval(minutes=current_delay)
-    reminders.restart()
-    await reply(ctx.message, f"delay changed to {current_delay} minutes")
-
-# .delay
-@bot.command()
-@commands.has_role('grape')
-async def delay(ctx):
-    await reply(ctx.message, f"current delay is {current_delay} minutes")
-
 # .log
 @bot.command()
 @commands.has_role('grape')
@@ -130,5 +77,11 @@ async def on_command_error(ctx, error):
         await reply(ctx.message, f"heck you {ctx.author.mention} (no perms)", )
     else:
         raise error
+
+# Load cogs/extensions
+@bot.event
+async def setup_hook():
+    # Reminders cog contains: start, stop, setdelay, delay
+    await bot.load_extension('cogs.reminders')
 
 bot.run(token, log_handler=handler, log_level=logging.DEBUG)
