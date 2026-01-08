@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Dict, Optional
 from utils import reply
 
-# High-level: This cog manages independent reminder streams per user, each with its own loop, delay, and last reminder message.
+# cog managing reminder streams per user, each with its own loop, delay, etc.
 
 @dataclass
 class ReminderStream:
@@ -39,7 +39,7 @@ class Reminders(commands.Cog):
             await target_context.send(f"error: unable to send reminder ({e})")
             stream.reminder_loop.cancel()
 
-    def create_loop(self, minutes, user_id: int) -> tasks.Loop:
+    def create_loop(self, minutes: float, user_id: int) -> tasks.Loop:
         return tasks.Loop(
             self._run_user_reminder,
             seconds=0.0,
@@ -83,7 +83,7 @@ class Reminders(commands.Cog):
 
     @commands.command(name="setdelay")
     @commands.has_role('grape')
-    async def setdelay(self, ctx, minutes):
+    async def setdelay(self, ctx, minutes: float):
         user_id = ctx.author.id
         safe_delay = max(0.1, minutes)
         stream = self.user_streams.get(user_id)
@@ -102,6 +102,13 @@ class Reminders(commands.Cog):
         await reply(ctx.message, f"delay changed to {safe_delay} minutes")
         if stream.reminder_loop.is_running():
             stream.reminder_loop.restart(ctx)
+
+    @setdelay.error
+    async def setdelay_error(self, ctx, error):
+        if isinstance(error, commands.BadArgument):
+            await reply(ctx.message, "invalid minutes, please provide a single number (e.g., 5 or 0.5)")
+        else:
+            raise error
 
     @commands.command(name="delay")
     @commands.has_role('grape')
