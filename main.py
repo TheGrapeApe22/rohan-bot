@@ -41,7 +41,7 @@ def current_log_path():
     return f"logs/{date}.txt"
 
 # .log
-@bot.command(help="Logs an event with a timestamp. Restricted permissions. Usage: `.log <message>`")
+@bot.command(help="Logs an event with a timestamp. Usage: `.log <message>`")
 @commands.has_role('grape')
 async def log(ctx, *, message):
     timestamp = ctx.message.created_at.astimezone(timezone).strftime('%I:%M:%S %p')
@@ -50,8 +50,8 @@ async def log(ctx, *, message):
     await ctx.message.add_reaction('🧀')
 
 # .view
-@bot.command(help="Views a log file. Restricted permissions. Usage: `.view [mm-dd-yyyy]`")
-@commands.has_role('grape')
+@bot.command(help="Views a log file. Usage: `.view [mm-dd-yyyy]`")
+# @commands.has_role('grape')
 async def view(ctx, *, message=None):
     path = current_log_path() if message is None else f"logs/{message.strip()}.txt"
     path = os.path.realpath(path)

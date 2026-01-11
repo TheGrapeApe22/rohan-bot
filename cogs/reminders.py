@@ -51,8 +51,8 @@ class Reminders(commands.Cog):
             name=f"user-{user_id}-reminder",
         )
 
-    @commands.command(name="start", help="Starts the reminder stream. Restricted permissions. Usage: `.start`")
-    @commands.has_role('grape')
+    @commands.command(name="start", help="Starts the reminder stream. Usage: `.start`")
+    # @commands.has_role('grape')
     async def start(self, ctx):
         user_id = ctx.author.id
         if user_id in self.user_streams and self.user_streams[user_id].reminder_loop.is_running():
@@ -69,8 +69,8 @@ class Reminders(commands.Cog):
         user_stream.reminder_loop.start(ctx)
         await reply(ctx.message, "started")
 
-    @commands.command(name="stop", help="Stops the reminder stream. Restricted permissions. Usage: `.stop`")
-    @commands.has_role('grape')
+    @commands.command(name="stop", help="Stops the reminder stream. Usage: `.stop`")
+    # @commands.has_role('grape')
     async def stop(self, ctx):
         user_id = ctx.author.id
         stream = self.user_streams.get(user_id)
@@ -81,8 +81,8 @@ class Reminders(commands.Cog):
         stream.last_reminder_message = None
         await reply(ctx.message, "stopped")
 
-    @commands.command(name="setdelay", help="Sets the reminder delay in minutes. Restricted permissions. Usage: `.setdelay <minutes>`")
-    @commands.has_role('grape')
+    @commands.command(name="setdelay", help="Sets the reminder delay in minutes. Usage: `.setdelay <minutes>`")
+    # @commands.has_role('grape')
     async def setdelay(self, ctx, minutes: float):
         user_id = ctx.author.id
         safe_delay = max(0.1, minutes)
@@ -110,8 +110,8 @@ class Reminders(commands.Cog):
         else:
             raise error
 
-    @commands.command(name="delay", help="Shows the current reminder delay in minutes. Restricted permissions. Usage: `.delay`")
-    @commands.has_role('grape')
+    @commands.command(name="delay", help="Shows the current reminder delay in minutes. Usage: `.delay`")
+    # @commands.has_role('grape')
     async def delay(self, ctx):
         user_id = ctx.author.id
         stream = self.user_streams.get(user_id)
