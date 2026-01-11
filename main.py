@@ -15,7 +15,7 @@ intents.message_content = True
 intents.members = True
 
 timezone = ZoneInfo("America/Los_Angeles")
-bot = commands.Bot(command_prefix='.', intents=intents)
+bot = commands.Bot(command_prefix=['. ', '.'], intents=intents)
 
 @bot.event
 async def on_ready():
@@ -31,7 +31,7 @@ async def on_message(message):
     await bot.process_commands(message)
 
 # .say
-@bot.command()
+@bot.command(help="Repeats your message. Usage: `.say <message>`")
 # @commands.has_role('grape')
 async def say(ctx, *, message):
     await ctx.send(message)
@@ -41,7 +41,7 @@ def current_log_path():
     return f"logs/{date}.txt"
 
 # .log
-@bot.command()
+@bot.command(help="Logs an event with a timestamp. Restricted permissions. Usage: `.log <message>`")
 @commands.has_role('grape')
 async def log(ctx, *, message):
     timestamp = ctx.message.created_at.astimezone(timezone).strftime('%I:%M:%S %p')
@@ -50,7 +50,7 @@ async def log(ctx, *, message):
     await ctx.message.add_reaction('🧀')
 
 # .view
-@bot.command()
+@bot.command(help="Views a log file. Restricted permissions. Usage: `.view [mm-dd-yyyy]`")
 @commands.has_role('grape')
 async def view(ctx, *, message=None):
     path = current_log_path() if message is None else f"logs/{message.strip()}.txt"
