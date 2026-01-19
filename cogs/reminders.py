@@ -51,39 +51,36 @@ class Reminders(commands.Cog):
         except Exception as e:
             await target_context.send(f"error: unable to send reminder ({e})")
             stream.reminder_loop.cancel()
+    
+    # return user_streams[id], create one if it doesn't exist
+    def get_stream(self, target_context: commands.Context) -> ReminderStream:
+        id = target_context.author.id
+        if not self.user_streams.get(id):
+            self.user_streams[id] = ReminderStream(target_context=target_context, run_user_reminder=self._run_user_reminder)
+        return self.user_streams[id]
 
     @commands.command(name="start", help="Starts the reminder stream. Usage: `.start`")
-    # @commands.has_role('grape')
     async def start(self, ctx):
-        id = ctx.author.id
-        if id in self.user_streams and self.user_streams[id].reminder_loop.is_running():
+        stream = self.get_stream(ctx)
+        if stream.reminder_loop.is_running():
             await reply(ctx.message, "already running")
             return
-        # get stream
-        if id not in self.user_streams:
-            self.user_streams[id] = ReminderStream(target_context=ctx, run_user_reminder=self._run_user_reminder)
-        # start loop
-        self.user_streams[id].reminder_loop.start(ctx)
+        stream.reminder_loop.start(ctx)
         await reply(ctx.message, "started")
 
     @commands.command(name="stop", help="Stops the reminder stream. Usage: `.stop`")
     async def stop(self, ctx):
-        stream = self.user_streams.get(ctx.author.id)
-        if not stream or not stream.reminder_loop.is_running():
+        stream = self.get_stream(ctx)
+        if not stream.reminder_loop.is_running():
             await reply(ctx.message, "not running")
             return
         stream.reminder_loop.cancel()
-        stream.last_reminder_message = None
         await reply(ctx.message, "stopped")
 
     @commands.command(name="setdelay", help="Sets the reminder delay in minutes. Usage: `.setdelay <minutes>`")
     async def setdelay(self, ctx, minutes: float):
         new_delay = max(0.1, minutes)
-        # get stream
-        stream = self.user_streams.get(ctx.author.id)
-        if not stream:
-            stream = ReminderStream(target_context=ctx, run_user_reminder=self._run_user_reminder)
-            self.user_streams[ctx.author.id] = stream
+        stream = self.get_stream(ctx)
         # set delay
         stream.delay_minutes = new_delay
         stream.reminder_loop.change_interval(minutes=new_delay)
@@ -100,21 +97,11 @@ class Reminders(commands.Cog):
 
     @commands.command(name="delay", help="Shows the current reminder delay in minutes. Usage: `.delay`")
     async def delay(self, ctx):
-        stream = self.user_streams.get(ctx.author.id)
-        if not stream:
-            stream = ReminderStream(target_context=ctx, run_user_reminder=self._run_user_reminder)
-            self.user_streams[ctx.author.id] = stream
-        await reply(ctx.message, f"current delay is {stream.delay_minutes} minutes")
+        await reply(ctx.message, f"current delay is {self.get_stream(ctx).delay_minutes} minutes")
     
     @commands.command(name="setmessage", help="Sets the reminder message content. Usage: `.setmessage <message>`")
     async def setmessage(self, ctx, *, message: str):
-        # get stream
-        stream = self.user_streams.get(ctx.author.id)
-        if not stream:
-            stream = ReminderStream(target_context=ctx, run_user_reminder=self._run_user_reminder)
-            self.user_streams[ctx.author.id] = stream
-        # set message
-        stream.message_content = message
+        self.get_stream(ctx).message_content = message
         await reply(ctx.message, f"reminder message set to: {message}")
 
 async def setup(bot: commands.Bot):
