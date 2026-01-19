@@ -17,7 +17,7 @@ class ReminderStream:
         self.target_context = target_context
         self.last_reminder_message = None
         self.delay_minutes = delay_minutes
-        self.message_content = message_content if message_content is not None else f"reminder {target_context.author.mention}"
+        self.message_content = message_content if message_content is not None else f"-# reminder {target_context.author.mention}"
         self.reminder_loop = tasks.Loop(
             run_user_reminder,
             seconds=0.0,
@@ -47,7 +47,7 @@ class Reminders(commands.Cog):
                 pass
         # send reminder message
         try:
-            stream.last_reminder_message = await target_context.send(f"-# {stream.message_content} ({stream.reminder_loop.current_loop})")
+            stream.last_reminder_message = await target_context.send(f"{stream.message_content} ({stream.reminder_loop.current_loop})")
         except Exception as e:
             await target_context.send(f"error: unable to send reminder ({e})")
             stream.reminder_loop.cancel()
@@ -103,6 +103,10 @@ class Reminders(commands.Cog):
     async def setmessage(self, ctx, *, message: str):
         self.get_stream(ctx).message_content = message
         await reply(ctx.message, f"reminder message set to: {message}")
+        
+    @commands.command(name="getmessage", help="Gets the current reminder message content. Usage: `.getmessage`")
+    async def getmessage(self, ctx):
+        await reply(ctx.message, f"current reminder message: ```{self.get_stream(ctx).message_content}```")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Reminders(bot))
