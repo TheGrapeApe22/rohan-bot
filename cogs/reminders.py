@@ -99,14 +99,13 @@ class Reminders(commands.Cog):
     async def delay(self, ctx):
         await reply(ctx.message, f"current delay is {self.get_stream(ctx).delay_minutes} minutes")
     
-    @commands.command(name="setmessage", help="Sets the reminder message content. Usage: `.setmessage <message>`")
-    async def setmessage(self, ctx, *, message: str):
+    @commands.command(name="setmessage", help="Sets the reminder message content. Sends a template if no message provided. Usage: `.setmessage <message>`")
+    async def setmessage(self, ctx, *, message: str=None):
+        if message is None or message.strip() == "":
+            await reply(ctx.message, f"```.setmessage {self.get_stream(ctx).message_content}```")
+            return
         self.get_stream(ctx).message_content = message
-        await reply(ctx.message, f"reminder message set to: {message}")
-        
-    @commands.command(name="getmessage", help="Gets the current reminder message content. Usage: `.getmessage`")
-    async def getmessage(self, ctx):
-        await reply(ctx.message, f"current reminder message: ```{self.get_stream(ctx).message_content}```")
+        await reply(ctx.message, f"reminder message set!")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Reminders(bot))
