@@ -68,6 +68,15 @@ async def view(ctx, *, message=None):
         await reply(ctx.message, f"file '{path}' not found. usage: `.view mm-dd-yyyy.txt`")
     except Exception as e:
         await reply(ctx.message, f"error: {e}")
+
+# servers
+@bot.command()
+async def servers(ctx):
+    """Lists all the servers the bot is currently in."""
+    guild_names = [guild.name for guild in bot.guilds]
+    server_list = "\n".join(guild_names)
+    await ctx.send(f"I am in the following {len(bot.guilds)} servers:\\n{server_list}")
+
 # send heck you to non-grapes
 @bot.event
 async def on_command_error(ctx, error):
