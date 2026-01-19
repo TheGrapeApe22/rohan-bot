@@ -6,6 +6,7 @@ import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from utils import reply
+import asyncio
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
@@ -39,6 +40,12 @@ async def say(ctx, *, message):
 def current_log_path():
     date = datetime.now(timezone).strftime("%m-%d-%Y")
     return f"logs/{date}.txt"
+
+# .ping
+@bot.command(help="Pings the sender after 3 seconds. Usage: `.ping`")
+async def ping(ctx):
+    await asyncio.sleep(3)
+    await reply(ctx.message, ctx.author.mention)
 
 # .log
 @bot.command(help="Logs an event with a timestamp. Usage: `.log <message>`")
@@ -75,7 +82,7 @@ async def servers(ctx):
     """Lists all the servers the bot is currently in."""
     guild_names = [guild.name for guild in bot.guilds]
     server_list = "\n".join(guild_names)
-    await ctx.send(f"I am in the following {len(bot.guilds)} servers:\\n{server_list}")
+    await ctx.send(f"I am in the following {len(bot.guilds)} servers:\n{server_list}")
 
 # send heck you to non-grapes
 @bot.event
