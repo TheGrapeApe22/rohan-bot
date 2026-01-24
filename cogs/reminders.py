@@ -110,6 +110,9 @@ class Reminders(commands.Cog):
     @commands.command(name="append", help="Appends text to the current reminder message content. Usage: `.append <text>`")
     async def append(self, ctx, *, text: str):
         stream = self.get_stream(ctx)
+        if (len(stream.message_content) + len(text)) > 1000:
+            await reply(ctx.message, "heck you, message too long")
+            return
         stream.message_content += f"\n* {text}"
         await reply(ctx.message, "text appended to reminder message")
 

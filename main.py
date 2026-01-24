@@ -6,6 +6,7 @@ import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from utils import reply
+from handler import handle_message
 import asyncio
 
 load_dotenv()
@@ -14,6 +15,7 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
+intents.guilds = True
 
 timezone = ZoneInfo("America/Los_Angeles")
 bot = commands.Bot(command_prefix=['. ', '.'], intents=intents)
@@ -29,6 +31,8 @@ async def on_message(message):
         return
     if bot.user.mentioned_in(message):
         await reply(message, f"heck you")
+    
+    await handle_message(bot, message)
     await bot.process_commands(message)
 
 # .say
@@ -77,9 +81,8 @@ async def view(ctx, *, message=None):
         await reply(ctx.message, f"error: {e}")
 
 # servers
-@bot.command()
+@bot.command(help="Lists all servers the bot is in. Usage: `.servers`")
 async def servers(ctx):
-    """Lists all the servers the bot is currently in."""
     guild_names = [guild.name for guild in bot.guilds]
     server_list = "\n".join(guild_names)
     await ctx.send(f"I am in the following {len(bot.guilds)} servers:\n{server_list}")
@@ -92,10 +95,14 @@ async def on_command_error(ctx, error):
     else:
         raise error
 
+# prevent commands in DMs
+# @bot.check
+# async def no_dms(ctx):
+#     return ctx.guild is not None
+
 # Load cogs/extensions
 @bot.event
 async def setup_hook():
-    # Reminders cog contains: start, stop, setdelay, delay
     await bot.load_extension('cogs.reminders')
 
 bot.run(token, log_handler=handler, log_level=logging.DEBUG)
