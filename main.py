@@ -27,7 +27,7 @@ async def on_ready():
 # reply "heck you" when pinged
 @bot.event
 async def on_message(message):
-    if message.author == bot.user:
+    if message.author.bot:
         return
     if bot.user.mentioned_in(message):
         await reply(message, f"heck you")
