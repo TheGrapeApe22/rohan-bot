@@ -22,17 +22,18 @@ bot = commands.Bot(command_prefix=['. ', '.'], intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f"{bot.user.name} is now running.")
+    print(f"{bot.user.name} is now running.") # type: ignore
 
 # reply "heck you" when pinged
 @bot.event
 async def on_message(message):
     if message.author.bot:
         return
-    if bot.user.mentioned_in(message):
+    if bot.user.mentioned_in(message): #type: ignore
         await reply(message, f"heck you")
     
-    await handle_message(bot, message)
+    ctx = await bot.get_context(message)
+    await handle_message(bot, ctx)
     await bot.process_commands(message)
 
 # .say
@@ -105,4 +106,4 @@ async def on_command_error(ctx, error):
 async def setup_hook():
     await bot.load_extension('cogs.reminders')
 
-bot.run(token, log_handler=handler, log_level=logging.DEBUG)
+bot.run(token, log_handler=handler, log_level=logging.DEBUG) # type: ignore
