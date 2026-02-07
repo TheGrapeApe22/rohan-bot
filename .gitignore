@@ -2,9 +2,6 @@
 venv/
 **/__pycache__
 
-keypair1.pem
-keypair2.pem
-aws.sh
 save_logs.sh
 
 logs/*
