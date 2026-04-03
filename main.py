@@ -3,7 +3,7 @@ from discord.ext import commands, tasks
 import logging
 from dotenv import load_dotenv
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from utils import reply
 from handler import handle_message
@@ -38,12 +38,15 @@ async def on_message(message):
 
 # .say
 @bot.command(help="Repeats your message. Usage: `.say <message>`")
-# @commands.has_role('grape')
 async def say(ctx, *, message):
     await ctx.send(message)
 
 def current_log_path():
     date = datetime.now(timezone).strftime("%m-%d-%Y")
+    return f"logs/{date}.txt"
+
+def log_path_days_ago(days_ago: int):
+    date = (datetime.now(timezone) - timedelta(days=days_ago)).strftime("%m-%d-%Y")
     return f"logs/{date}.txt"
 
 # .ping
@@ -58,14 +61,22 @@ async def ping(ctx):
 async def log(ctx, *, message):
     timestamp = ctx.message.created_at.astimezone(timezone).strftime('%I:%M:%S %p')
     with open(current_log_path(), "a") as f:
+        if ctx.author.id != 958167615833006121:
+            message = f"({ctx.author.name}) {message}"
         f.write(f'{timestamp}: {message}\n')
     await ctx.message.add_reaction('🧀')
 
 # .view
-@bot.command(help="Views a log file. Usage: `.view [mm-dd-yyyy]`")
-# @commands.has_role('grape')
+@bot.command(help="Views a log file. Usage: `.view [mm-dd-yyyy|N]` where N=days ago")
 async def view(ctx, *, message=None):
-    path = current_log_path() if message is None else f"logs/{message.strip()}.txt"
+    if message is None:
+        path = current_log_path()
+    else:
+        query = message.strip()
+        if query.isdigit():
+            path = log_path_days_ago(int(query))
+        else:
+            path = f"logs/{query}.txt"
     path = os.path.realpath(path)
     
     # prevent directory traversal attack
@@ -75,9 +86,9 @@ async def view(ctx, *, message=None):
         return
     try:
         with open(path, "r") as log_file:
-            await reply(ctx.message, f"```{log_file.read()}```")
+            await reply(ctx.message, f"-# {path[-14:-4]}\n```{log_file.read()}```")
     except FileNotFoundError:
-        await reply(ctx.message, f"file '{path}' not found. usage: `.view mm-dd-yyyy.txt`")
+        await reply(ctx.message, f"file '{path}' not found. usage: `.view mm-dd-yyyy` or `.view N` (days ago)")
     except Exception as e:
         await reply(ctx.message, f"error: {e}")
 
