@@ -61,14 +61,12 @@ async def ping(ctx):
 async def log(ctx, *, message):
     timestamp = ctx.message.created_at.astimezone(timezone).strftime('%I:%M:%S %p')
     with open(current_log_path(), "a") as f:
-        if ctx.author.id != 958167615833006121:
-            message = f"({ctx.author.name}) {message}"
-        f.write(f'{timestamp}: {message}\n')
+        if any(role.name == "invisible logs" for role in ctx.author.roles):
+            f.write('*')
+        f.write(f'{timestamp} ({ctx.author.name}): {message}\n')
     await ctx.message.add_reaction('🧀')
 
-# .view
-@bot.command(help="Views a log file. Usage: `.view [mm-dd-yyyy|N]` where N=days ago")
-async def view(ctx, *, message=None):
+async def send_log(ctx: commands.Context, message, include_hidden):
     if message is None:
         path = current_log_path()
     else:
@@ -86,11 +84,26 @@ async def view(ctx, *, message=None):
         return
     try:
         with open(path, "r") as log_file:
-            await reply(ctx.message, f"-# {path[-14:-4]}\n```{log_file.read()}```")
+            lines = log_file.readlines()
+            if not include_hidden:
+                lines = [line for line in lines if not line.startswith('*')]
+            
+            await reply(ctx.message, f"-# {path[-14:-4]}\n```{''.join(lines)}```")
     except FileNotFoundError:
         await reply(ctx.message, f"file '{path}' not found. usage: `.view mm-dd-yyyy` or `.view N` (days ago)")
     except Exception as e:
         await reply(ctx.message, f"error: {e}")
+
+# .view
+@bot.command(help="Views a log file. usage: `.view mm-dd-yyyy` or `.view N` (days ago)")
+async def view(ctx, *, message=None):
+    await send_log(ctx, message, include_hidden=False)
+
+# .view2
+@bot.command()
+@commands.has_role('view2er')
+async def view2(ctx, *, message=None):
+    await send_log(ctx, message, include_hidden=True)
 
 # servers
 @bot.command(help="Lists all servers the bot is in. Usage: `.servers`")
@@ -106,11 +119,6 @@ async def on_command_error(ctx, error):
         await reply(ctx.message, f"heck you {ctx.author.mention} (no perms)", )
     else:
         raise error
-
-# prevent commands in DMs
-# @bot.check
-# async def no_dms(ctx):
-#     return ctx.guild is not None
 
 # Load cogs/extensions
 @bot.event
