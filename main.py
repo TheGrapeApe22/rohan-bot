@@ -87,8 +87,30 @@ async def send_log(ctx: commands.Context, message, include_hidden):
             lines = log_file.readlines()
             if not include_hidden:
                 lines = [line for line in lines if not line.startswith('*')]
-            
-            await reply(ctx.message, f"-# {path[-14:-4]}\n```{''.join(lines)}```")
+
+            chunks = []
+            current_chunk = []
+            current_len = 0
+            max_chunk_len = 1500
+
+            for line in lines:
+                line_len = len(line)
+                if current_chunk and (current_len + line_len > max_chunk_len):
+                    chunks.append(current_chunk)
+                    current_chunk = []
+                    current_len = 0
+                current_chunk.append(line)
+                current_len += line_len
+
+            if current_chunk:
+                chunks.append(current_chunk)
+
+            if not chunks:
+                chunks = [["(no visible log lines)\n"]]
+
+            await reply(ctx.message, f"-# {path[-14:-4]}\n```{''.join(chunks[0])}```")
+            for chunk in chunks[1:min(6, len(chunks))]: # limit to 6 chunks
+                await ctx.send(f"```{''.join(chunk)}```")
     except FileNotFoundError:
         await reply(ctx.message, f"file '{path}' not found. usage: `.view mm-dd-yyyy` or `.view N` (days ago)")
     except Exception as e:
