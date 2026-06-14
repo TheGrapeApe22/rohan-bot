@@ -8,6 +8,7 @@ from zoneinfo import ZoneInfo
 from utils import reply
 from handler import handle_message
 import asyncio
+import requests
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
@@ -15,10 +16,30 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
-intents.guilds = True
 
 timezone = ZoneInfo("America/Los_Angeles")
-bot = commands.Bot(command_prefix=['. ', '.'], intents=intents)
+
+class CustomCommandTree(discord.app_commands.CommandTree):
+    def __init__(self, client: discord.Client):
+        super().__init__(
+            client,
+            allowed_installs=discord.app_commands.AppInstallationType(guild=True, user=True),
+            allowed_contexts=discord.app_commands.AppCommandContext(guild=True, dm_channel=True, private_channel=True)
+        )
+class MyBot(commands.Bot):
+    def __init__(self):
+        super().__init__(
+            command_prefix=['.', '. '], 
+            intents=intents,
+            help_command=None,
+            tree_cls=CustomCommandTree
+        )
+    async def setup_hook(self):
+        await self.load_extension('cogs.reminders')
+        await self.tree.sync()
+        print(f"Synced slash commands for {self.user}")
+
+bot = MyBot()
 
 @bot.event
 async def on_ready():
@@ -37,7 +58,7 @@ async def on_message(message):
     await bot.process_commands(message)
 
 # .say
-@bot.command(help="Repeats your message. Usage: `.say <message>`")
+@bot.hybrid_command(help="Repeats your message. Usage: `.say <message>`")
 async def say(ctx, *, message):
     await ctx.send(message)
 
@@ -56,7 +77,7 @@ async def ping(ctx):
     await reply(ctx.message, ctx.author.mention)
 
 # .log
-@bot.command(help="Logs an event with a timestamp. Usage: `.log <message>`")
+@bot.hybrid_command(help="Logs an event with a timestamp. Usage: `.log <message>`")
 @commands.has_role('grape')
 async def log(ctx, *, message):
     timestamp = ctx.message.created_at.astimezone(timezone).strftime('%I:%M:%S %p')
@@ -64,7 +85,10 @@ async def log(ctx, *, message):
         if any(role.name == "invisible logs" for role in ctx.author.roles):
             f.write('*')
         f.write(f'{timestamp} ({ctx.author.name}): {message}\n')
-    await ctx.message.add_reaction('🧀')
+    if ctx.interaction is None:
+        await ctx.message.add_reaction('🧀')
+    else:
+        await ctx.send('🧀')
 
 async def send_log(ctx: commands.Context, message, include_hidden):
     if message is None:
@@ -134,6 +158,15 @@ async def servers(ctx):
     server_list = "\n".join(guild_names)
     await ctx.send(f"I am in the following {len(bot.guilds)} servers:\n{server_list}")
 
+# quote
+@bot.hybrid_command(help="Get dungewar quote of the day")
+async def quote(ctx):
+    await ctx.send(requests.get("https://api.dungewar.com/qotd").text)
+    
+@bot.hybrid_command(help="Get oil prices")
+async def oil(ctx):
+    await ctx.send(requests.get("https://api.dungewar.com/oil-simple").text)
+
 # send heck you to non-grapes
 @bot.event
 async def on_command_error(ctx, error):
@@ -141,10 +174,5 @@ async def on_command_error(ctx, error):
         await reply(ctx.message, f"heck you {ctx.author.mention} (no perms)", )
     else:
         raise error
-
-# Load cogs/extensions
-@bot.event
-async def setup_hook():
-    await bot.load_extension('cogs.reminders')
 
 bot.run(token, log_handler=handler, log_level=logging.DEBUG) # type: ignore
