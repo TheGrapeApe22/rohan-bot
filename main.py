@@ -161,11 +161,19 @@ async def servers(ctx):
 # quote
 @bot.hybrid_command(help="Get dungewar quote of the day")
 async def quote(ctx):
-    await ctx.send(requests.get("https://api.dungewar.com/qotd").text)
+    try:
+        await ctx.send(requests.get("https://api.dungewar.com/qotd").text)
+    except Exception as e:
+        await ctx.send(f"error fetching quote: ```{e}```")
     
 @bot.hybrid_command(help="Get oil prices")
 async def oil(ctx):
-    await ctx.send(requests.get("https://api.dungewar.com/oil-simple").text)
+    try:
+        res = requests.get("https://api.dungewar.com/oil-full").json()['data']
+        change = res['changes']['24h']['percent']
+        await ctx.send(f"```diff\n${res['price']} per barrel\n{'+' if change >= 0 else ''}{change}% in the last 24 hours```\n-# (source: [Dungewar API](<https://api.dungewar.com/oil-full>))")
+    except Exception as e:
+        await ctx.send(f"error fetching oil prices: ```{e}```")
 
 # send heck you to non-grapes
 @bot.event
