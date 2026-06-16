@@ -175,6 +175,29 @@ async def oil(ctx):
     except Exception as e:
         await ctx.send(f"error fetching oil prices: ```{e}```")
 
+# boykisser
+@bot.hybrid_command(help="boykisser zoom in gif")
+async def boykisser(ctx):
+    await ctx.send(file=discord.File("assets/boykisser-zoom.gif"))
+
+@bot.hybrid_command(help="boykisser lick gif")
+async def boykisser_lick(ctx):
+    await ctx.send("https://tenor.com/view/licky-mauzymice-boykisser-gif-1303620811246816055")
+
+@bot.hybrid_command(help="boykisser meow mao kiss gif")
+async def boykisser_meow(ctx):
+    await ctx.send("https://tenor.com/view/boy-kisser-kiss-cute-gif-12091707061489691944")
+
+# boykisser smirk gif
+@bot.hybrid_command(help="boykisser smirk smile gif")
+async def boykisser_smirk(ctx):
+    await ctx.send("https://tenor.com/view/boykisser-gif-16777119058470997423")
+    
+# boykisser spin gif
+@bot.hybrid_command(help="boykisser spin gif")
+async def boykisser_spin(ctx):
+    await ctx.send("https://tenor.com/view/boykisser-spin-silly-cat-silly-cat-gif-15869807335045066863")
+
 # send heck you to non-grapes
 @bot.event
 async def on_command_error(ctx, error):
