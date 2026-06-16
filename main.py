@@ -197,6 +197,10 @@ async def boykisser_smirk(ctx):
 @bot.hybrid_command(help="boykisser spin gif")
 async def boykisser_spin(ctx):
     await ctx.send("https://tenor.com/view/boykisser-spin-silly-cat-silly-cat-gif-15869807335045066863")
+# boykisser mindustry gif
+@bot.hybrid_command(help="boykisser mindustry gif")
+async def boykisser_mindustry(ctx):
+    await ctx.send("https://tenor.com/view/mindustry-mindustry-rp-mindustry-roleplay-mindustry-qw-mindustry-quantum-well-gif-8979957206124813591")
 
 # send heck you to non-grapes
 @bot.event
