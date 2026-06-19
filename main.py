@@ -31,7 +31,6 @@ class MyBot(commands.Bot):
         super().__init__(
             command_prefix=['.', '. '], 
             intents=intents,
-            help_command=None,
             tree_cls=CustomCommandTree
         )
     async def setup_hook(self):
