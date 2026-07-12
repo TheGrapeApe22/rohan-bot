@@ -162,15 +162,15 @@ def sanitize_unit(user_input: str) -> str:
 
 # quote
 @bot.hybrid_command(help="Get GNU units response")
-async def units(ctx, user_from: str, user_to: str):
+async def units(ctx, user_from: str, user_to: str=""):
     try:
         result = subprocess.run(
-            ["units", "-t", sanitize_unit(user_from), sanitize_unit(user_to)],
+            ["units", "-v", sanitize_unit(user_from), sanitize_unit(user_to) if user_to != "" else " "],
             capture_output=True,
             text=True,
             timeout=1.0 
         )
-        await ctx.send(result.stdout)
+        await ctx.send(f"```units\n{result.stdout}```")
     except subprocess.TimeoutExpired:
         await ctx.send("Calculation timed out >:(")
     except ValueError:
