@@ -10,6 +10,10 @@ import asyncio
 import requests
 import re
 import subprocess
+try:
+    from handler import handle_message
+except:
+    pass
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
@@ -44,6 +48,21 @@ bot = MyBot()
 @bot.event
 async def on_ready():
     print(f"{bot.user.name} is now running.") # type: ignore
+
+# reply "heck you" when pinged
+@bot.event
+async def on_message(message):
+    if message.author.bot:
+        return
+    if bot.user.mentioned_in(message): #type: ignore
+        await reply(message, f"heck you")
+    
+    ctx = await bot.get_context(message)
+    try:
+        await handle_message(bot, ctx)
+    except:
+        pass
+    await bot.process_commands(message)
 
 # .say
 @bot.hybrid_command(help="Repeats your message. Usage: `.say <message>`")
@@ -162,10 +181,16 @@ def sanitize_unit(user_input: str) -> str:
 
 # quote
 @bot.hybrid_command(help="Get GNU units response")
-async def units(ctx, user_from: str, user_to: str):
+async def units(ctx, user_from: str, user_to: str=''):
+    if len(user_from) > 1000 or len(user_to) > 1000:
+        await ctx.send("Input too long. Please limit to 1000 characters.")
+        return
     try:
+        cmd = ["units", "-t", sanitize_unit(user_from)]
+        if user_to:
+            cmd.append(sanitize_unit(user_to))
         result = subprocess.run(
-            ["units", "-t", sanitize_unit(user_from), sanitize_unit(user_to)],
+            cmd,
             capture_output=True,
             text=True,
             timeout=1.0 
