@@ -6,9 +6,10 @@ import os
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from utils import reply
-from handler import handle_message
 import asyncio
 import requests
+import re
+import subprocess
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
@@ -43,18 +44,6 @@ bot = MyBot()
 @bot.event
 async def on_ready():
     print(f"{bot.user.name} is now running.") # type: ignore
-
-# reply "heck you" when pinged
-@bot.event
-async def on_message(message):
-    if message.author.bot:
-        return
-    if bot.user.mentioned_in(message): #type: ignore
-        await reply(message, f"heck you")
-    
-    ctx = await bot.get_context(message)
-    await handle_message(bot, ctx)
-    await bot.process_commands(message)
 
 # .say
 @bot.hybrid_command(help="Repeats your message. Usage: `.say <message>`")
@@ -157,7 +146,40 @@ async def servers(ctx):
     server_list = "\n".join(guild_names)
     await ctx.send(f"I am in the following {len(bot.guilds)} servers:\n{server_list}")
 
+def sanitize_unit(user_input: str) -> str:
+    # Only allow alphanumeric, spaces, and specific math/punctuation symbols
+    if not re.match(r'^[\w\s\.\+\-\*\/\^\(\)]+$', user_input):
+        raise ValueError("Invalid characters detected.")
+    
+    # Strip leading whitespace to prepare for the next check
+    cleaned = user_input.strip()
+    
+    # Prevent flag injection (e.g., someone trying to pass "--file=/etc/passwd")
+    if cleaned.startswith('-'):
+        raise ValueError("Flags are not allowed.")
+        
+    return cleaned
+
 # quote
+@bot.hybrid_command(help="Get GNU units response")
+async def units(ctx, user_from: str, user_to: str):
+    try:
+        result = subprocess.run(
+            ["units", "-t", sanitize_unit(user_from), sanitize_unit(user_to)],
+            capture_output=True,
+            text=True,
+            timeout=1.0 
+        )
+        await ctx.send(result.stdout)
+    except subprocess.TimeoutExpired:
+        await ctx.send("Calculation timed out >:(")
+    except ValueError:
+        await ctx.send("Nice try. Invalid input.")
+    except Exception as e:
+        await ctx.send(f"Error doing units: ```{e}```")
+
+
+ # quote
 @bot.hybrid_command(help="Get dungewar quote of the day")
 async def quote(ctx):
     try:
