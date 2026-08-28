@@ -221,7 +221,11 @@ async def oil(ctx):
     except Exception as e:
         await ctx.send(f"error fetching oil prices: ```{e}```")
 
-# boykisser
+# gifs
+@bot.hybrid_command(help="david reaction gif")
+async def david_reaction(ctx):
+    await ctx.send(file=discord.File("assets/david-reaction.gif"))
+
 @bot.hybrid_command(help="boykisser zoom in gif")
 async def boykisser(ctx):
     await ctx.send(file=discord.File("assets/boykisser-zoom.gif"))
