@@ -226,31 +226,53 @@ async def oil(ctx):
 async def david_reaction(ctx):
     await ctx.send(file=discord.File("assets/david-reaction.gif"))
 
-@bot.hybrid_command(help="boykisser zoom in gif")
-async def boykisser(ctx):
+@bot.hybrid_command(help="bk boykisser zoom in gif")
+async def bk(ctx):
     await ctx.send(file=discord.File("assets/boykisser-zoom.gif"))
 
-@bot.hybrid_command(help="boykisser lick gif")
-async def boykisser_lick(ctx):
+@bot.hybrid_command(help="bk boykisser lick gif")
+async def bk_lick(ctx):
     await ctx.send("https://tenor.com/view/licky-mauzymice-boykisser-gif-1303620811246816055")
 
-@bot.hybrid_command(help="boykisser meow mao kiss gif")
-async def boykisser_meow(ctx):
+@bot.hybrid_command(help="bk boykisser meow mao kiss gif")
+async def bk_meow(ctx):
     await ctx.send("https://tenor.com/view/boy-kisser-kiss-cute-gif-12091707061489691944")
 
-# boykisser smirk gif
-@bot.hybrid_command(help="boykisser smirk smile gif")
-async def boykisser_smirk(ctx):
+@bot.hybrid_command(help="bk boykisser smirk smile gif")
+async def bk_smirk(ctx):
     await ctx.send("https://tenor.com/view/boykisser-gif-16777119058470997423")
     
-# boykisser spin gif
-@bot.hybrid_command(help="boykisser spin gif")
-async def boykisser_spin(ctx):
+@bot.hybrid_command(help="bk boykisser spin gif")
+async def bk_spin(ctx):
     await ctx.send("https://tenor.com/view/boykisser-spin-silly-cat-silly-cat-gif-15869807335045066863")
-# boykisser mindustry gif
-@bot.hybrid_command(help="boykisser mindustry gif")
-async def boykisser_mindustry(ctx):
+@bot.hybrid_command(help="bk boykisser mindustry gif")
+async def bk_mindustry(ctx):
     await ctx.send("https://tenor.com/view/mindustry-mindustry-rp-mindustry-roleplay-mindustry-qw-mindustry-quantum-well-gif-8979957206124813591")
+
+@bot.hybrid_command(help="bk boykisser blushing embarrassed gif")
+async def bk_blushing(ctx):
+    await ctx.send("https://tenor.com/view/boy-kisser-blushing-cute-gif-5271857668865124738")
+
+@bot.hybrid_command(help="bk boykisser stare gif")
+async def bk_klipy(ctx):
+    await ctx.send("https://klipy.com/gifs/boykisser-boy-kisser")
+
+@bot.hybrid_command(help="bk boykisser touch boop nose blush gif")
+async def bk_boop(ctx):
+    await ctx.send("https://klipy.com/gifs/crystal-the-cavern-spirit-28")
+
+@bot.hybrid_command(help="bk boykisser cry sad tear gif")
+async def bk_sad(ctx):
+    await ctx.send("https://klipy.com/gifs/boykisser-boy-kisser-10")
+
+@bot.hybrid_command(help="bk boykisser big eyes mesmerized blinking smooth brain kitty gif")
+async def bk_eyes(ctx):
+    await ctx.send("https://klipy.com/gifs/smooth-brain-kitty")
+
+@bot.hybrid_command(help="mindustry my honest reactor reaction gif")
+async def bk_honest_reaction(ctx):
+    await ctx.send("https://klipy.com/gifs/my-honest-reaction-my-honest-reactor-1")
+
 
 # send heck you to non-grapes
 @bot.event
