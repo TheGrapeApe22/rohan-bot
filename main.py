@@ -7,15 +7,17 @@ from dotenv import load_dotenv
 import os
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
-from soliloquy import construct_abomination
 from utils import reply
 import asyncio
 import requests
 import re
 import subprocess
+from soliloquy import construct_abomination, seven_bag
+from pathlib import Path
 try:
     from handler import handle_message
 except:
+    print('no handler :(')
     pass
 
 load_dotenv()
@@ -206,11 +208,13 @@ async def units(ctx, user_from: str, user_to: str=''):
     except Exception as e:
         await ctx.send(f"Error doing units: ```{e}```")
 
+folder_path = Path("assets/soliloquy")
+soliloquy_images = seven_bag([f'assets/soliloquy/{f.name}' for f in folder_path.iterdir()])
 @bot.hybrid_command(help="generate a soliloquy from inside jokes/copypastas")
-async def schizo_soliloquy(ctx, include_pushups: bool = False, length: discord.app_commands.Range[int, 1, 20] = 5):
+async def schizo_soliloquy(ctx, length: discord.app_commands.Range[int, 1, 25] = 1, include_image: bool = False):
     file = None
-    if include_pushups:
-        file = discord.File("assets/pushups.png")
+    if include_image:
+        file = discord.File(soliloquy_images.get_item())
 
     message = construct_abomination(length)
     if len(message) > 1984: # for the memes
