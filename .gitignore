@@ -10,3 +10,4 @@ logs/*
 discord.log
 handler.py
 loglog
+test.py

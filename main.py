@@ -207,12 +207,15 @@ async def units(ctx, user_from: str, user_to: str=''):
         await ctx.send(f"Error doing units: ```{e}```")
 
 @bot.hybrid_command(help="generate a soliloquy from inside jokes/copypastas")
-async def soliloquy(ctx, include_pushups: bool = False):
+async def schizo_soliloquy(ctx, include_pushups: bool = False, length: discord.app_commands.Range[int, 1, 20] = 5):
     file = None
     if include_pushups:
         file = discord.File("assets/pushups.png")
-    
-    await ctx.send(construct_abomination(), file=file)
+
+    message = construct_abomination(length)
+    if len(message) > 1984: # for the memes
+        await ctx.send(f"Message ({len(message)} characters) too long to send. Try a shorter length.")
+    await ctx.send(message, file=file)
 
  # quote
 @bot.hybrid_command(help="Get dungewar quote of the day")

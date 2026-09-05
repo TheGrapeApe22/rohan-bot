@@ -1,4 +1,3 @@
-import json
 import random
 import re
 
@@ -13,42 +12,22 @@ class seven_bag:
         self.bag = self.items.copy()
         random.shuffle(self.bag)
 
-    def get_item(self, item=None):
-        if item is None:
-            item = self.bag.pop()
-        else:
-            self.bag.remove(item)
-
+    def get_item(self):
         if len(self.bag) == 0:
             self.refill_bag()
-        return item
+        return self.bag.pop()
 
+with open('assets/sentences.txt') as f:
+    sentences = seven_bag([s for s in f.read().splitlines() if s])
+with open('assets/nouns.txt') as f:
+    nouns = seven_bag(f.read().splitlines())
 
-# init from file
-with open('assets/memes.json') as f:
-    source = json.load(f)
-
-sentence_frames: seven_bag = seven_bag(source['sentences'])
-insertions = source['insertions']
-for (placeholder, insertion) in insertions.items():
-    insertions[placeholder] = seven_bag(insertion)
-
-# replaces all placeholders with random insertions from the corresponding bag
+# replaces [noun] with random noun
 def fill_sentence(sentence: str):
-    for placeholder, insertion in insertions.items():
-        sentence = re.sub(f'\\{placeholder}', lambda m: insertion.get_item(), sentence)
-    return sentence
+    return re.sub(r'\[noun\]', lambda m: nouns.get_item(), sentence)
 
-def get_random_sentence(tag):
-    for sentence in sentence_frames.bag:
-        if tag in sentence['tags']:
-            return fill_sentence(sentence_frames.get_item(sentence)['sentence'])
-    return None
-
-def construct_abomination(tags=['beginning', 'middle', 'middle', 'middle', 'end']):
+def construct_abomination(n: int):
     abomination = ''
-    for tag in tags:
-        sentence = get_random_sentence(tag)
-        if sentence is not None:
-            abomination += sentence + ' '
+    for _ in range(n):
+        abomination += fill_sentence(sentences.get_item()) + ' '
     return abomination.strip()
