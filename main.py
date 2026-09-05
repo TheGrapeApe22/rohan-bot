@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
+from soliloquy import construct_abomination
 from utils import reply
 import asyncio
 import requests
@@ -203,6 +204,9 @@ async def units(ctx, user_from: str, user_to: str=''):
     except Exception as e:
         await ctx.send(f"Error doing units: ```{e}```")
 
+@bot.hybrid_command(help="generate a soliloquy from inside jokes/copypastas")
+async def soliloquy(ctx):
+    await ctx.send(construct_abomination())
 
  # quote
 @bot.hybrid_command(help="Get dungewar quote of the day")
