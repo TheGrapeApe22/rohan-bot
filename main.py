@@ -1,3 +1,5 @@
+from random import random
+
 import discord
 from discord.ext import commands, tasks
 import logging
@@ -205,8 +207,12 @@ async def units(ctx, user_from: str, user_to: str=''):
         await ctx.send(f"Error doing units: ```{e}```")
 
 @bot.hybrid_command(help="generate a soliloquy from inside jokes/copypastas")
-async def soliloquy(ctx):
-    await ctx.send(construct_abomination())
+async def soliloquy(ctx, include_pushups: bool = False):
+    file = None
+    if include_pushups:
+        file = discord.File("assets/pushups.png")
+    
+    await ctx.send(construct_abomination(), file=file)
 
  # quote
 @bot.hybrid_command(help="Get dungewar quote of the day")
