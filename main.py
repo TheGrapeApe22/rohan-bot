@@ -1,3 +1,4 @@
+import json
 from random import random
 
 import discord
@@ -298,5 +299,24 @@ async def on_command_error(ctx, error):
         await reply(ctx.message, f"heck you {ctx.author.mention} (no perms)", )
     else:
         raise error
+
+@bot.hybrid_command(help="increment a card count for a user, as a consequence for breaking a Mao rule")
+async def give_card(ctx, user: discord.User, ping: bool = False):
+    with open("cards.json", "r") as f:
+        cards = json.load(f)
+    user_id = str(user.id)
+    if user_id not in cards:
+        cards[user_id] = 0
+    cards[user_id] += 1
+    with open("cards.json", "w") as f:
+        json.dump(cards, f)
+    await ctx.send(f"{user.mention if ping else user.name} now has {cards[user_id]} card(s).")
+@bot.hybrid_command(help="check how many cards a user has")
+async def get_card_count(ctx, user: discord.User, ping: bool = False):
+    with open("cards.json", "r") as f:
+        cards = json.load(f)
+    user_id = str(user.id)
+    count = cards.get(user_id, 0)
+    await ctx.send(f"{user.mention if ping else user.name} has {count} card(s).")
 
 bot.run(token, log_handler=handler, log_level=logging.DEBUG) # type: ignore
