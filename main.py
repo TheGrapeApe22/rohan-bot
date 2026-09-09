@@ -301,7 +301,7 @@ async def on_command_error(ctx, error):
         raise error
 
 @bot.hybrid_command(help="increment a card count for a user, as a consequence for breaking a Mao rule")
-async def give_card(ctx, user: discord.User, reason: str = '', ping: bool = False):
+async def give_card(ctx, user: discord.User, reason: str = '', ping: bool = True):
     with open("cards.json", "r") as f:
         cards = json.load(f)
     user_id = str(user.id)
@@ -310,13 +310,13 @@ async def give_card(ctx, user: discord.User, reason: str = '', ping: bool = Fals
     cards[user_id] += 1
     with open("cards.json", "w") as f:
         json.dump(cards, f)
-    await ctx.send(f"{reason}{'\n' if reason else ''}{user.mention if ping else user.name} now has {cards[user_id]} card(s).")
+    await ctx.send(f"{reason}{'\n' if reason else ''}{user.mention if ping else user.name} now has {cards[user_id]} card{'' if cards[user_id] == 1 else 's'}.")
 @bot.hybrid_command(help="check how many cards a user has")
-async def get_card_count(ctx, user: discord.User, ping: bool = False):
+async def get_card_count(ctx, user: discord.User, ping: bool = True):
     with open("cards.json", "r") as f:
         cards = json.load(f)
     user_id = str(user.id)
     count = cards.get(user_id, 0)
-    await ctx.send(f"{user.mention if ping else user.name} has {count} card(s).")
+    await ctx.send(f"{user.mention if ping else user.name} has {count} card{'' if count == 1 else 's'}.")
 
 bot.run(token, log_handler=handler, log_level=logging.DEBUG) # type: ignore
