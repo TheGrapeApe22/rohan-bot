@@ -318,5 +318,18 @@ async def get_card_count(ctx, user: discord.User, ping: bool = True):
     user_id = str(user.id)
     count = cards.get(user_id, 0)
     await ctx.send(f"{user.mention if ping else user.name} has {count} card{'' if count == 1 else 's'}.")
+@bot.hybrid_command(help="show the card counts for all users")
+async def leaderboard(ctx):
+    with open("cards.json", "r") as f:
+        cards = json.load(f)
+    if not cards:
+        await ctx.send("(empty)")
+        return
+    sorted_cards = sorted(cards.items(), key=lambda x: x[1], reverse=True)
+    leaderboard_text = ''
+    for user_id, count in sorted_cards:
+        user = await bot.fetch_user(int(user_id))
+        leaderboard_text += f"{user.name}: {count} card{'' if count == 1 else 's'}\n"
+    await ctx.send(f"# Card Leaderboard\n{leaderboard_text}")
 
 bot.run(token, log_handler=handler, log_level=logging.DEBUG) # type: ignore
