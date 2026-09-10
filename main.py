@@ -1,6 +1,5 @@
 import json
 from random import random
-from typing import Literal
 
 import discord
 from discord.ext import commands, tasks
@@ -11,13 +10,8 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from utils import reply
 import asyncio
-import requests
-import re
-import subprocess
-from soliloquy import construct_abomination, seven_bag
-from pathlib import Path
 try:
-    from handler import handle_message
+    from handler import handle_message # type:ignore
 except:
     print('no handler :(')
     pass
@@ -46,7 +40,9 @@ class MyBot(commands.Bot):
             tree_cls=CustomCommandTree
         )
     async def setup_hook(self):
-        await self.load_extension('cogs.reminders')
+        for filename in os.listdir('./cogs'):
+            if filename.endswith('.py'):
+                await self.load_extension(f'cogs.{filename[:-3]}')
         await self.tree.sync()
         print(f"Synced slash commands for {self.user}")
 
@@ -76,94 +72,11 @@ async def on_message(message):
 async def say(ctx, *, message):
     await ctx.send(message)
 
-def current_log_path():
-    date = datetime.now(timezone).strftime("%m-%d-%Y")
-    return f"logs/{date}.txt"
-
-def log_path_days_ago(days_ago: int):
-    date = (datetime.now(timezone) - timedelta(days=days_ago)).strftime("%m-%d-%Y")
-    return f"logs/{date}.txt"
-
 # .ping
 @bot.command(help="Pings the sender after 3 seconds. Usage: `.ping`")
 async def ping(ctx):
     await asyncio.sleep(3)
     await reply(ctx.message, ctx.author.mention)
-
-# .log
-@bot.hybrid_command(help="Logs an event with a timestamp. Usage: `.log <message>`")
-@commands.has_role('grape')
-async def log(ctx, *, message):
-    timestamp = ctx.message.created_at.astimezone(timezone).strftime('%I:%M:%S %p')
-    with open(current_log_path(), "a") as f:
-        if any(role.name == "invisible logs" for role in ctx.author.roles):
-            f.write('*')
-        f.write(f'{timestamp} ({ctx.author.name}): {message}\n')
-    if ctx.interaction is None:
-        await ctx.message.add_reaction('🧀')
-    else:
-        await ctx.send('🧀')
-
-async def send_log(ctx: commands.Context, message, include_hidden):
-    if message is None:
-        path = current_log_path()
-    else:
-        query = message.strip()
-        if query.isdigit():
-            path = log_path_days_ago(int(query))
-        else:
-            path = f"logs/{query}.txt"
-    path = os.path.realpath(path)
-    
-    # prevent directory traversal attack
-    logs_dir = os.path.realpath('logs')
-    if os.path.commonpath([path, logs_dir]) != os.path.commonpath([logs_dir]):
-        await reply(ctx.message, "heck you (access denied)")
-        return
-    try:
-        with open(path, "r") as log_file:
-            lines = log_file.readlines()
-            if not include_hidden:
-                lines = [line for line in lines if not line.startswith('*')]
-
-            chunks = []
-            current_chunk = []
-            current_len = 0
-            max_chunk_len = 1500
-
-            for line in lines:
-                line_len = len(line)
-                if current_chunk and (current_len + line_len > max_chunk_len):
-                    chunks.append(current_chunk)
-                    current_chunk = []
-                    current_len = 0
-                current_chunk.append(line)
-                current_len += line_len
-
-            if current_chunk:
-                chunks.append(current_chunk)
-
-            if not chunks:
-                chunks = [["(no visible log lines)\n"]]
-
-            await reply(ctx.message, f"-# {path[-14:-4]}\n```{''.join(chunks[0])}```")
-            for chunk in chunks[1:min(6, len(chunks))]: # limit to 6 chunks
-                await ctx.send(f"```{''.join(chunk)}```")
-    except FileNotFoundError:
-        await reply(ctx.message, f"file '{path}' not found. usage: `.view mm-dd-yyyy` or `.view N` (days ago)")
-    except Exception as e:
-        await reply(ctx.message, f"error: {e}")
-
-# .view
-@bot.command(help="Views a log file. usage: `.view mm-dd-yyyy` or `.view N` (days ago)")
-async def view(ctx, *, message=None):
-    await send_log(ctx, message, include_hidden=False)
-
-# .view2
-@bot.command()
-@commands.has_role('view2er')
-async def view2(ctx, *, message=None):
-    await send_log(ctx, message, include_hidden=True)
 
 # servers
 @bot.command(help="Lists all servers the bot is in. Usage: `.servers`")
@@ -172,127 +85,6 @@ async def servers(ctx):
     server_list = "\n".join(guild_names)
     await ctx.send(f"I am in the following {len(bot.guilds)} servers:\n{server_list}")
 
-def sanitize_unit(user_input: str) -> str:
-    # Only allow alphanumeric, spaces, and specific math/punctuation symbols
-    if not re.match(r'^[\w\s\.\+\-\*\/\^\(\)]+$', user_input):
-        raise ValueError("Invalid characters detected.")
-    
-    # Strip leading whitespace to prepare for the next check
-    cleaned = user_input.strip()
-    
-    # Prevent flag injection (e.g., someone trying to pass "--file=/etc/passwd")
-    if cleaned.startswith('-'):
-        raise ValueError("Flags are not allowed.")
-        
-    return cleaned
-
-# quote
-@bot.hybrid_command(help="Get GNU units response")
-async def units(ctx, user_from: str, user_to: str=''):
-    if len(user_from) > 1000 or len(user_to) > 1000:
-        await ctx.send("Input too long. Please limit to 1000 characters.")
-        return
-    try:
-        cmd = ["units", "-t", sanitize_unit(user_from)]
-        if user_to:
-            cmd.append(sanitize_unit(user_to))
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=1.0 
-        )
-        await ctx.send(result.stdout)
-    except subprocess.TimeoutExpired:
-        await ctx.send("Calculation timed out >:(")
-    except ValueError:
-        await ctx.send("Nice try. Invalid input.")
-    except Exception as e:
-        await ctx.send(f"Error doing units: ```{e}```")
-
-folder_path = Path("assets/soliloquy")
-soliloquy_images = seven_bag([f'assets/soliloquy/{f.name}' for f in folder_path.iterdir()])
-@bot.hybrid_command(help="generate a soliloquy from inside jokes/copypastas")
-async def schizo_soliloquy(ctx, length: discord.app_commands.Range[int, 1, 25] = 1, include_image: bool = False):
-    file = None
-    if include_image:
-        file = discord.File(soliloquy_images.get_item())
-
-    message = construct_abomination(length)
-    if len(message) > 1984: # for the memes
-        await ctx.send(f"Message ({len(message)} characters) too long to send. Try a shorter length.")
-    await ctx.send(message, file=file)
-
- # quote
-@bot.hybrid_command(help="Get dungewar quote of the day")
-async def quote(ctx):
-    try:
-        await ctx.send(requests.get("https://api.dungewar.com/qotd").text)
-    except Exception as e:
-        await ctx.send(f"error fetching quote: ```{e}```")
-    
-@bot.hybrid_command(help="Get oil prices")
-async def oil(ctx):
-    try:
-        res = requests.get("https://api.dungewar.com/oil-full").json()['data']
-        change = res['changes']['24h']['percent']
-        await ctx.send(f"```diff\n${res['price']} per barrel\n{'+' if change >= 0 else ''}{change}% in the last 24 hours```\n-# (source: [Dungewar API](<https://api.dungewar.com/oil-full>))")
-    except Exception as e:
-        await ctx.send(f"error fetching oil prices: ```{e}```")
-
-# gifs
-@bot.hybrid_command(help="david reaction gif")
-async def david_reaction(ctx):
-    await ctx.send(file=discord.File("assets/david-reaction.gif"))
-
-@bot.hybrid_command(help="bk boykisser zoom in gif")
-async def bk(ctx):
-    await ctx.send(file=discord.File("assets/boykisser-zoom.gif"))
-
-@bot.hybrid_command(help="bk boykisser lick gif")
-async def bk_lick(ctx):
-    await ctx.send("https://tenor.com/view/licky-mauzymice-boykisser-gif-1303620811246816055")
-
-@bot.hybrid_command(help="bk boykisser meow mao kiss gif")
-async def bk_meow(ctx):
-    await ctx.send("https://tenor.com/view/boy-kisser-kiss-cute-gif-12091707061489691944")
-
-@bot.hybrid_command(help="bk boykisser smirk smile gif")
-async def bk_smirk(ctx):
-    await ctx.send("https://tenor.com/view/boykisser-gif-16777119058470997423")
-    
-@bot.hybrid_command(help="bk boykisser spin gif")
-async def bk_spin(ctx):
-    await ctx.send("https://tenor.com/view/boykisser-spin-silly-cat-silly-cat-gif-15869807335045066863")
-@bot.hybrid_command(help="bk boykisser mindustry gif")
-async def bk_mindustry(ctx):
-    await ctx.send("https://tenor.com/view/mindustry-mindustry-rp-mindustry-roleplay-mindustry-qw-mindustry-quantum-well-gif-8979957206124813591")
-
-@bot.hybrid_command(help="bk boykisser blushing embarrassed gif")
-async def bk_blushing(ctx):
-    await ctx.send("https://tenor.com/view/boy-kisser-blushing-cute-gif-5271857668865124738")
-
-@bot.hybrid_command(help="bk boykisser stare gif")
-async def bk_klipy(ctx):
-    await ctx.send("https://klipy.com/gifs/boykisser-boy-kisser")
-
-@bot.hybrid_command(help="bk boykisser touch boop nose blush gif")
-async def bk_boop(ctx):
-    await ctx.send("https://klipy.com/gifs/crystal-the-cavern-spirit-28")
-
-@bot.hybrid_command(help="bk boykisser cry sad tear gif")
-async def bk_sad(ctx):
-    await ctx.send("https://klipy.com/gifs/boykisser-boy-kisser-10")
-
-@bot.hybrid_command(help="bk boykisser big eyes mesmerized blinking smooth brain kitty gif")
-async def bk_eyes(ctx):
-    await ctx.send("https://klipy.com/gifs/smooth-brain-kitty")
-
-@bot.hybrid_command(help="mindustry my honest reactor reaction gif")
-async def bk_honest_reaction(ctx):
-    await ctx.send("https://klipy.com/gifs/my-honest-reaction-my-honest-reactor-1")
-
-
 # send heck you to non-grapes
 @bot.event
 async def on_command_error(ctx, error):
@@ -300,48 +92,5 @@ async def on_command_error(ctx, error):
         await reply(ctx.message, f"heck you {ctx.author.mention} (no perms)", )
     else:
         raise error
-
-@bot.hybrid_command(help="increment a card count for a user, as a consequence for breaking a Mao rule")
-async def give_card(ctx, user: discord.User, reason: str = '', ping: bool = True):
-    with open("cards.json", "r") as f:
-        cards = json.load(f)
-    user_id = str(user.id)
-    if user_id not in cards:
-        cards[user_id] = 0
-    cards[user_id] += 1
-    with open("cards.json", "w") as f:
-        json.dump(cards, f)
-    await ctx.send(f"{reason}{'\n' if reason else ''}{user.mention if ping else user.name} now has {cards[user_id]} card{'' if cards[user_id] == 1 else 's'}.")
-@bot.hybrid_command(help="check how many cards a user has")
-async def get_card_count(ctx, user: discord.User, ping: bool = True):
-    with open("cards.json", "r") as f:
-        cards = json.load(f)
-    user_id = str(user.id)
-    count = cards.get(user_id, 0)
-    await ctx.send(f"{user.mention if ping else user.name} has {count} card{'' if count == 1 else 's'}.")
-@bot.hybrid_command(help="show the card counts for all users")
-async def leaderboard(ctx):
-    with open("cards.json", "r") as f:
-        cards = json.load(f)
-    if not cards:
-        await ctx.send("(empty)")
-        return
-    sorted_cards = sorted(cards.items(), key=lambda x: x[1], reverse=True)
-    leaderboard_text = ''
-    for user_id, count in sorted_cards:
-        user = await bot.fetch_user(int(user_id))
-        leaderboard_text += f"{user.name}: {count} card{'' if count == 1 else 's'}\n"
-    await ctx.send(f"# Card Leaderboard\n{leaderboard_text}")
-
-@bot.hybrid_command(help="translate a message to a programming language")
-async def translate(ctx, message: str, language: Literal['C++ (🧀)', 'Java']):
-    if '"' in message or message[-1] == '\\':
-        await ctx.send("Invalid message: cannot contain double quotes or end with a backslash.")
-        return
-    
-    if language == 'C++ (🧀)':
-        await ctx.send(f"```cpp\n#include <iostream>\n#define cheese int\n#define Cheese main\n#define cHeese (\n#define CHeese )\n#define chEese {{\n#define ChEese std\n#define cHEese ::\n#define CHEese cout\n#define cheEse <<\n#define CheEse \"{message}\"\n#define cHeEse endl\n#define CHeEse ;\n#define chEEse }}\n\ncheese Cheese cHeese CHeese chEese\n    ChEese cHEese CHEese cheEse CheEse cheEse ChEese cHEese cHeEse CHeEse\nchEEse\n```")
-    elif language == 'Java':
-        await ctx.send(f'```java\nclass sentence {{\n  public static void main(String[] args) {{\n    System.out.println("{message}");\n  }}\n}}\n```')
 
 bot.run(token, log_handler=handler, log_level=logging.DEBUG) # type: ignore

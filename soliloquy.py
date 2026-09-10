@@ -17,9 +17,9 @@ class seven_bag:
             self.refill_bag()
         return self.bag.pop()
 
-with open('assets/sentences.txt') as f:
+with open('assets/soliloquy/sentences.txt') as f:
     sentences = seven_bag([s for s in f.read().splitlines() if s])
-with open('assets/nouns.txt') as f:
+with open('assets/soliloquy/nouns.txt') as f:
     nouns = seven_bag(f.read().splitlines())
 
 # replaces [noun] with random noun
