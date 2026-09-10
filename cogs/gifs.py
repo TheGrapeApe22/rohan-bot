@@ -10,7 +10,7 @@ class Gifs(commands.Cog):
         await ctx.send(file=discord.File("assets/gifs/david-reaction.gif"))
 
     @commands.hybrid_command(help="bk boykisser zoom in gif")
-    async def bk(self, ctx):
+    async def bk_zoom(self, ctx):
         await ctx.send(file=discord.File("assets/gifs/boykisser-zoom.gif"))
 
     @commands.hybrid_command(help="bk boykisser lick gif")
@@ -18,7 +18,7 @@ class Gifs(commands.Cog):
         await ctx.send("https://tenor.com/view/licky-mauzymice-boykisser-gif-1303620811246816055")
 
     @commands.hybrid_command(help="bk boykisser meow mao kiss gif")
-    async def bk_meow(self, ctx):
+    async def bk_mao(self, ctx):
         await ctx.send("https://tenor.com/view/boy-kisser-kiss-cute-gif-12091707061489691944")
 
     @commands.hybrid_command(help="bk boykisser smirk smile gif")
@@ -29,11 +29,11 @@ class Gifs(commands.Cog):
     async def bk_spin(self, ctx):
         await ctx.send("https://tenor.com/view/boykisser-spin-silly-cat-silly-cat-gif-15869807335045066863")
     @commands.hybrid_command(help="bk boykisser mindustry gif")
-    async def bk_mindustry(self, ctx):
+    async def hop_on_mindustry(self, ctx):
         await ctx.send("https://tenor.com/view/mindustry-mindustry-rp-mindustry-roleplay-mindustry-qw-mindustry-quantum-well-gif-8979957206124813591")
 
     @commands.hybrid_command(help="bk boykisser blushing embarrassed gif")
-    async def bk_blushing(self, ctx):
+    async def bk_embarrassed(self, ctx):
         await ctx.send("https://tenor.com/view/boy-kisser-blushing-cute-gif-5271857668865124738")
 
     @commands.hybrid_command(help="bk boykisser stare gif")
@@ -45,7 +45,7 @@ class Gifs(commands.Cog):
         await ctx.send("https://klipy.com/gifs/crystal-the-cavern-spirit-28")
 
     @commands.hybrid_command(help="bk boykisser cry sad tear gif")
-    async def bk_sad(self, ctx):
+    async def bk_cry(self, ctx):
         await ctx.send("https://klipy.com/gifs/boykisser-boy-kisser-10")
 
     @commands.hybrid_command(help="bk boykisser big eyes mesmerized blinking smooth brain kitty gif")
@@ -53,7 +53,7 @@ class Gifs(commands.Cog):
         await ctx.send("https://klipy.com/gifs/smooth-brain-kitty")
 
     @commands.hybrid_command(help="mindustry my honest reactor reaction gif")
-    async def bk_honest_reaction(self, ctx):
+    async def honest_reactor(self, ctx):
         await ctx.send("https://klipy.com/gifs/my-honest-reaction-my-honest-reactor-1")
 
 async def setup(bot: commands.Bot):
