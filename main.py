@@ -1,5 +1,6 @@
 import json
 from random import random
+from typing import Literal
 
 import discord
 from discord.ext import commands, tasks
@@ -331,5 +332,16 @@ async def leaderboard(ctx):
         user = await bot.fetch_user(int(user_id))
         leaderboard_text += f"{user.name}: {count} card{'' if count == 1 else 's'}\n"
     await ctx.send(f"# Card Leaderboard\n{leaderboard_text}")
+
+@bot.hybrid_command(help="translate a message to a programming language")
+async def translate(ctx, message: str, language: Literal['C++ (🧀)', 'Java']):
+    if '"' in message or message[-1] == '\\':
+        await ctx.send("Invalid message: cannot contain double quotes or end with a backslash.")
+        return
+    
+    if language == 'C++ (🧀)':
+        await ctx.send(f"```cpp\n#include <iostream>\n#define cheese int\n#define Cheese main\n#define cHeese (\n#define CHeese )\n#define chEese {{\n#define ChEese std\n#define cHEese ::\n#define CHEese cout\n#define cheEse <<\n#define CheEse \"{message}\"\n#define cHeEse endl\n#define CHeEse ;\n#define chEEse }}\n\ncheese Cheese cHeese CHeese chEese\n    ChEese cHEese CHEese cheEse CheEse cheEse ChEese cHEese cHeEse CHeEse\nchEEse\n```")
+    elif language == 'Java':
+        await ctx.send(f'```java\nclass sentence {{\n  public static void main(String[] args) {{\n    System.out.println("{message}");\n  }}\n}}\n```')
 
 bot.run(token, log_handler=handler, log_level=logging.DEBUG) # type: ignore
