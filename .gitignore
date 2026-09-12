@@ -9,9 +9,6 @@ logs/*
 !logs/test.txt
 cards.json
 
-assets/gifs/david-reaction.gif
-assets/soliloquy/attachments/pushups.png
-
 discord.log
 handler.py
 loglog

@@ -7,11 +7,19 @@ class Gifs(commands.Cog):
 
     @commands.hybrid_command(help="david reaction gif")
     async def david_reaction(self, ctx):
-        await ctx.send(file=discord.File("assets/gifs/david-reaction.gif"))
+        await ctx.send(file=discord.File("assets/gifs/david_reaction.gif"))
+
+    @commands.hybrid_command(help="david explaining gif")
+    async def david_explaining(self, ctx):
+        await ctx.send(file=discord.File("assets/gifs/david_explaining.gif"))
+
+    @commands.hybrid_command(help="niranjan winking raising eyebrows gif")
+    async def niranjan_eyebrows(self, ctx):
+        await ctx.send(file=discord.File("assets/gifs/niranjan_eyebrows.gif"))
 
     @commands.hybrid_command(help="bk boykisser zoom in gif")
     async def bk_zoom(self, ctx):
-        await ctx.send(file=discord.File("assets/gifs/boykisser-zoom.gif"))
+        await ctx.send(file=discord.File("assets/gifs/boykisser_zoom.gif"))
 
     @commands.hybrid_command(help="bk boykisser lick gif")
     async def bk_lick(self, ctx):
