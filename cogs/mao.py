@@ -122,6 +122,20 @@ class Mao(commands.Cog):
     async def breaking_news(self, ctx, preview_title: str, preview_description: str='', preview_image_url: str='', displayed_text: str='', provider: str='', author: str=''):
         destination_url = 'https://discord.com/vanityurl/dotcom/steakpants/flour/flower/index11.html' # no making this a parameter, because abusable
 
+        def cleaned(s: str) -> str:
+            replacements = {
+                ' ': '%20',
+                '&': '%26',
+                '?': '%3F',
+                '=': '%3D',
+                '/': '%2F',
+                ':': '%3A',
+                '%': '%25',
+            }
+            for old, new in replacements.items():
+                s = s.replace(old, new)
+            return s
+
         if not displayed_text:
             yesterday = date.today() - timedelta(days=1)
             cleaned_title = preview_title.lower().replace(" ", "-")
@@ -135,15 +149,15 @@ class Mao(commands.Cog):
                 preview_image_url = 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
 
         previewed_url = os.getenv('PREVIEWED_URL')
-        previewed_url += f'?title={preview_title.replace(" ", "+")}'
+        previewed_url += f'?title={cleaned(preview_title)}'
         if preview_description:
-            previewed_url += f'&description={preview_description.replace(" ", "+")}'
+            previewed_url += f'&description={cleaned(preview_description)}'
         if preview_image_url:
-            previewed_url += f'&image={preview_image_url}'
+            previewed_url += f'&image={cleaned(preview_image_url)}'
         if provider:
-            previewed_url += f'&provider_name={provider.replace(" ", "+")}'
+            previewed_url += f'&provider_name={cleaned(provider)}'
         if author:
-            previewed_url += f'&author_name={author.replace(" ", "+")}'
+            previewed_url += f'&author_name={cleaned(author)}'
         previewed_url += f'&author_url={destination_url}'
         previewed_url += f'&provider_url={destination_url}'
 
