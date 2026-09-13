@@ -132,6 +132,13 @@ class Mao(commands.Cog):
                 '/': '%2F',
                 '.': '%2E',
                 ',': '%2C',
+                '(': '%28',
+                ')': '%29',
+                ':': '%3A',
+                ';': '%3B',
+                "'": '%27',
+                '$': '%24',
+                '"': '%22',
             }
             if encode_characters:
                 for old, new in replacements.items():
