@@ -55,6 +55,14 @@ class Mao(commands.Cog):
     # soliloquy
     @commands.hybrid_command(help="generate a soliloquy from inside jokes/copypastas")
     async def schizo_soliloquy(self, ctx, length: discord.app_commands.Range[int, 1, 25] = 1, include_image: bool = False):
+        if ctx.author.id == 335921289900589066: # mason
+            roll = random.randint(1, 6)
+            if roll == 6:
+                await ctx.send('frick you mason. you rolled a d6 and landed on a 6.')
+            else:
+                await ctx.send(f'frick you mason. you rolled a d6 and landed on a {roll}. roll a 6 to receive your soliloquy.')
+                return
+
         file = None
         if include_image:
             file = discord.File(self.soliloquy_images.get_item())
