@@ -1,4 +1,6 @@
 import random
+import os
+from datetime import date, timedelta
 
 from soliloquy import construct_abomination, seven_bag
 from pathlib import Path
@@ -107,6 +109,44 @@ class Mao(commands.Cog):
             await ctx.send(f"{prefix}```cpp\n#include <iostream>\n#define cheese int\n#define Cheese main\n#define cHeese (\n#define CHeese )\n#define chEese {{\n#define ChEese std\n#define cHEese ::\n#define CHEese cout\n#define cheEse <<\n#define CheEse \"{message}\"\n#define cHeEse endl\n#define CHeEse ;\n#define chEEse }}\n\ncheese Cheese cHeese CHeese chEese\n    ChEese cHEese CHEese cheEse CheEse cheEse ChEese cHEese cHeEse CHeEse\nchEEse\n```")
         elif language == 'Java':
             await ctx.send(f'{prefix}```java\nclass sentence {{\n  public static void main(String[] args) {{\n    System.out.println("{message}");\n  }}\n}}\n```')
+
+    @commands.hybrid_command(help="generate a funny website preview with a different redirect")
+    async def breaking_news(self, ctx, preview_title: str, preview_description: str='', preview_image_url: str='', displayed_text: str='', provider: str='', author: str=''):
+        destination_url = 'https://discord.com/vanityurl/dotcom/steakpants/flour/flower/index11.html' # no making this a parameter, because abusable
+
+        if not displayed_text:
+            yesterday = date.today() - timedelta(days=1)
+            cleaned_title = preview_title.lower().replace(" ", "-")
+            cleaned_title = ''.join(c for c in cleaned_title if c.isalnum() or c == '-')
+            displayed_text = f'https://www.nytimes.com/{yesterday.strftime("%Y/%m/%d")}/politics/{cleaned_title}.html'
+            if not provider:
+                provider = 'The New York Times'
+            if not author:
+                author = 'By Mike Isaac'
+
+        previewed_url = os.getenv('PREVIEWED_URL')
+        previewed_url += f'?title={preview_title.replace(" ", "+")}'
+        if preview_description:
+            previewed_url += f'&description={preview_description.replace(" ", "+")}'
+        if preview_image_url:
+            previewed_url += f'&image={preview_image_url}'
+        if provider:
+            previewed_url += f'&provider_name={provider.replace(" ", "+")}'
+        if author:
+            previewed_url += f'&author_name={author.replace(" ", "+")}'
+        previewed_url += f'&author_url={destination_url}'
+        previewed_url += f'&provider_url={destination_url}'
+
+        out = ''
+        if '//' in displayed_text:
+            sep = displayed_text.find('//') + 2
+            out += f'[{displayed_text[:sep]}](<{destination_url}>)'
+        else:
+            sep = 0
+        out += f'[{displayed_text[sep:-1]}](<{destination_url}>)'
+        out += f'[{displayed_text[-1]}]({previewed_url})'
+        
+        await ctx.send(out)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Mao(bot))
