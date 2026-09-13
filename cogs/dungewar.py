@@ -65,7 +65,7 @@ class Dungewar(commands.Cog):
                 msg += f"\n\n{comment_lines}"
 
             if image:
-                msg += f"\n-# (source: [Dungewar AP](<https://api.dungewar.com/qotd-full>)[I]({image}))"
+                msg += f"\n-# (source: [Dungewar AP](<https://api.dungewar.com/qotd-full>)[I]({image})"
 
             await ctx.send(msg)
         except Exception as e:
