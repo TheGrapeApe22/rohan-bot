@@ -119,21 +119,24 @@ class Mao(commands.Cog):
             await ctx.send(f'{prefix}```java\nclass sentence {{\n  public static void main(String[] args) {{\n    System.out.println("{message}");\n  }}\n}}\n```')
 
     @commands.hybrid_command(help="generate a funny website preview with a different redirect")
-    async def breaking_news(self, ctx, preview_title: str, preview_description: str='', preview_image_url: str='', displayed_text: str='', provider: str='', author: str='', large_image: bool=True):
+    async def breaking_news(self, ctx, preview_title: str, preview_description: str='', preview_image_url: str='', displayed_text: str='', provider: str='', author: str='', large_image: bool=True, encode_characters: bool=False):
         destination_url = 'https://discord.com/vanityurl/dotcom/steakpants/flour/flower/index11.html' # no making this a parameter, because abusable
 
         def cleaned(s: str) -> str:
             replacements = {
-                ' ': '%20',
+                '+': '%2B',
+                '%': '%25',
                 '&': '%26',
                 '?': '%3F',
                 '=': '%3D',
                 '/': '%2F',
-                ':': '%3A',
-                '%': '%25',
+                '.': '%2E',
+                ',': '%2C',
             }
-            for old, new in replacements.items():
-                s = s.replace(old, new)
+            if encode_characters:
+                for old, new in replacements.items():
+                    s = s.replace(old, new)
+            s = s.replace(' ', '+')
             return s
 
         if not displayed_text:
@@ -158,9 +161,9 @@ class Mao(commands.Cog):
             previewed_url += f'&provider_name={cleaned(provider)}'
         if author:
             previewed_url += f'&author_name={cleaned(author)}'
-        previewed_url += f'&author_url={destination_url}'
-        previewed_url += f'&provider_url={destination_url}'
-        previewed_url += f'&appear_url={displayed_text}'
+        previewed_url += f'&author_url={cleaned(destination_url)}'
+        previewed_url += f'&provider_url={cleaned(destination_url)}'
+        previewed_url += f'&appear_url={cleaned(displayed_text)}'
         previewed_url += f'&large_image={str(large_image).lower()}'
 
         out = ''
