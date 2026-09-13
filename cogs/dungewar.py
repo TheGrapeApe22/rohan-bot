@@ -44,21 +44,56 @@ class Dungewar(commands.Cog):
         except Exception as e:
             await ctx.send(f"Error doing units: ```{e}```")
 
-    # quote
+     # quote
     @commands.hybrid_command(help="Get dungewar quote of the day")
     async def quote(self, ctx):
         try:
-            await ctx.send(requests.get("https://api.dungewar.com/qotd").text)
+            res = requests.get("https://api.dungewar.com/qotd-full").json()
+            quote_text = res.get("quote", "").strip()
+            author = res.get("author", "").strip()
+            image = res.get("image", "").strip()
+            comment = res.get("comment", "").strip() if res.get("comment") else ""
+
+            clean_quote = quote_text.strip(" \"'")
+            if author:
+                msg = f"> *\"{clean_quote}\"*\n> — **{author}**"
+            else:
+                msg = f"> *\"{clean_quote}\"*"
+
+            if comment:
+                comment_lines = "\n".join(f"> *{line}*" if line.strip() else ">" for line in comment.splitlines())
+                msg += f"\n\n{comment_lines}"
+
+            if image:
+                msg += f"\n-# (source: [Dungewar API]({image}))"
+
+            await ctx.send(msg)
         except Exception as e:
             await ctx.send(f"error fetching quote: ```{e}```")
-
-    # oil
+    
     @commands.hybrid_command(help="Get oil prices")
     async def oil(self, ctx):
         try:
-            res = requests.get("https://api.dungewar.com/oil-full").json()['data']
-            change = res['changes']['24h']['percent']
-            await ctx.send(f"```diff\n${res['price']} per barrel\n{'+' if change >= 0 else ''}{change}% in the last 24 hours```\n-# (source: [Dungewar API](<https://api.dungewar.com/oil-full>))")
+            res = requests.get("https://api.dungewar.com/oil-full").json().get('data', {})
+            price = res.get('price')
+            change = res.get('changes', {}).get('24h', {}).get('percent')
+            comment = res.get('comment')
+            meme = res.get('meme')
+            meme_url = meme.get('url') if isinstance(meme, dict) else meme
+
+            diff_content = f"${price} per barrel\n{'+' if change is not None and change >= 0 else ''}{change}% in the last 24 hours" if change is not None else f"${price} per barrel"
+            content = f"```diff\n{diff_content}```"
+
+            if comment:
+                comment_lines = "\n".join(f"> *{line}*" if line.strip() else ">" for line in comment.strip().splitlines())
+                content += f"\n{comment_lines}"
+
+            content += "\n-# (source: [Dungewar API](<https://api.dungewar.com/oil-full>))"
+
+            if meme_url:
+                content += f"[.]({meme_url})"
+
+            await ctx.send(content)
         except Exception as e:
             await ctx.send(f"error fetching oil prices: ```{e}```")
 
