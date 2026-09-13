@@ -123,6 +123,8 @@ class Mao(commands.Cog):
                 provider = 'The New York Times'
             if not author:
                 author = 'By Mike Isaac'
+            if not preview_image_url:
+                preview_image_url = 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
 
         previewed_url = os.getenv('PREVIEWED_URL')
         previewed_url += f'?title={preview_title.replace(" ", "+")}'
