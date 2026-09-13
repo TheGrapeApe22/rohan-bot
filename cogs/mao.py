@@ -160,6 +160,7 @@ class Mao(commands.Cog):
             previewed_url += f'&author_name={cleaned(author)}'
         previewed_url += f'&author_url={destination_url}'
         previewed_url += f'&provider_url={destination_url}'
+        previewed_url += f'&appear_url={displayed_text}'
 
         out = ''
         if '//' in displayed_text:
