@@ -13,3 +13,6 @@ discord.log
 handler.py
 loglog
 test.py
+
+cogs/command_audit.py
+ignore_channels.txt
