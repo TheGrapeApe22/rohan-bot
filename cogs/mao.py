@@ -119,7 +119,7 @@ class Mao(commands.Cog):
             await ctx.send(f'{prefix}```java\nclass sentence {{\n  public static void main(String[] args) {{\n    System.out.println("{message}");\n  }}\n}}\n```')
 
     @commands.hybrid_command(help="generate a funny website preview with a different redirect")
-    async def breaking_news(self, ctx, preview_title: str, preview_description: str='', preview_image_url: str='', displayed_text: str='', provider: str='', author: str='', large_image: bool=True, encode_characters: bool=False):
+    async def breaking_news(self, ctx, title: str, description: str='', image_url: str='', message_text: str='', provider: str='', author: str='', large_image: bool=True, encode_characters: bool=False, template: Literal['NYTimes', 'AP News', 'Prospector', 'BBC', 'None']='NYTimes'):
         destination_url = 'https://discord.com/vanityurl/dotcom/steakpants/flour/flower/index11.html' # no making this a parameter, because abusable
 
         def cleaned(s: str) -> str:
@@ -148,29 +148,45 @@ class Mao(commands.Cog):
 
         if not displayed_text:
             yesterday = date.today() - timedelta(days=1)
-            cleaned_title = preview_title.lower().replace(" ", "-")
+            cleaned_title = title.lower().replace(" ", "-")
             cleaned_title = ''.join(c for c in cleaned_title if c.isalnum() or c == '-')
-            displayed_text = f'https://www.nytimes.com/{yesterday.strftime("%Y/%m/%d")}/politics/{cleaned_title}.html'
-            if not provider:
-                provider = 'The New York Times'
-            if not author:
-                author = 'By Mike Isaac'
-            if not preview_image_url:
-                preview_image_url = 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
+            if template == 'NYTimes':
+                displayed_text = displayed_text or f'https://www.nytimes.com/{yesterday.strftime("%Y/%m/%d")}/politics/{cleaned_title}.html'
+                provider = provider or 'The New York Times'
+                author = author or 'By Mike Isaac'
+                preview_image_url = preview_image_url or 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
+                large_image = True
+            elif template == 'AP News':
+                displayed_text = displayed_text or f'https://apnews.com/article/{cleaned_title}-d2d1bac8e8666c681937665596a4f603'
+                provider = provider or 'The New York Times'
+                author = author or 'By Mike Isaac'
+                preview_image_url = preview_image_url or 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
+                large_image = False
+            elif template == 'BBC':
+                displayed_text = displayed_text or f'https://www.bbc.com/news/articles/ce8767g4jdpo'
+                provider = provider or 'BBC News'
+                author = author or 'By Mark Elliot'
+                preview_image_url = preview_image_url or 'https://static.wikia.nocookie.net/logopedia/images/b/ba/BBC_News_2019_%28Black_box%29.svg/revision/latest/scale-to-width-down/250?cb=20211024233853'
+                large_image = False
+            elif template == 'Prospector':
+                displayed_text = displayed_text or f'https://prospector.com/11608/news/{cleaned_title}'
+                provider = provider or 'The Prospector'
+                preview_image_url = preview_image_url or 'https://chsprospector.com/wp-content/uploads/2025/08/prospector-masthead-enhanced.png'
+                large_image = True
 
         previewed_url = os.getenv('PREVIEWED_URL')
-        previewed_url += f'?title={cleaned(preview_title)}'
-        if preview_description:
-            previewed_url += f'&description={cleaned(preview_description)}'
-        if preview_image_url:
-            previewed_url += f'&image={cleaned(preview_image_url)}'
+        previewed_url += f'?title={cleaned(title)}'
+        if description:
+            previewed_url += f'&description={cleaned(description)}'
+        if image_url:
+            previewed_url += f'&image={cleaned(image_url)}'
         if provider:
             previewed_url += f'&provider_name={cleaned(provider)}'
         if author:
             previewed_url += f'&author_name={cleaned(author)}'
         previewed_url += f'&author_url={cleaned(destination_url)}'
         previewed_url += f'&provider_url={cleaned(destination_url)}'
-        previewed_url += f'&appear_url={cleaned(displayed_text)}'
+        previewed_url += f'&appear_url={cleaned(message_text)}'
         previewed_url += f'&large_image={str(large_image).lower()}'
 
         out = ''
