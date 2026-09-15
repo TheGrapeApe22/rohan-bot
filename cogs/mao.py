@@ -154,24 +154,24 @@ class Mao(commands.Cog):
                 message_text = message_text or f'https://www.nytimes.com/{yesterday.strftime("%Y/%m/%d")}/politics/{cleaned_title}.html'
                 provider = provider or 'The New York Times'
                 author = author or 'By Mike Isaac'
-                preview_image_url = preview_image_url or 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
+                image_url = image_url or 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
                 large_image = True
             elif template == 'AP News':
                 message_text = message_text or f'https://apnews.com/article/{cleaned_title}-d2d1bac8e8666c681937665596a4f603'
                 provider = provider or 'The New York Times'
                 author = author or 'By Mike Isaac'
-                preview_image_url = preview_image_url or 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
+                image_url = image_url or 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
                 large_image = False
             elif template == 'BBC':
                 message_text = message_text or f'https://www.bbc.com/news/articles/ce8767g4jdpo'
                 provider = provider or 'BBC News'
                 author = author or 'By Mark Elliot'
-                preview_image_url = preview_image_url or 'https://static.wikia.nocookie.net/logopedia/images/b/ba/BBC_News_2019_%28Black_box%29.svg/revision/latest/scale-to-width-down/250?cb=20211024233853'
+                image_url = image_url or 'https://static.wikia.nocookie.net/logopedia/images/b/ba/BBC_News_2019_%28Black_box%29.svg/revision/latest/scale-to-width-down/250?cb=20211024233853'
                 large_image = False
             elif template == 'Prospector':
                 message_text = message_text or f'https://prospector.com/11608/news/{cleaned_title}'
                 provider = provider or 'The Prospector'
-                preview_image_url = preview_image_url or 'https://chsprospector.com/wp-content/uploads/2025/08/prospector-masthead-enhanced.png'
+                image_url = image_url or 'https://chsprospector.com/wp-content/uploads/2025/08/prospector-masthead-enhanced.png'
                 large_image = True
 
         previewed_url = os.getenv('PREVIEWED_URL')
