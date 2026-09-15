@@ -146,30 +146,30 @@ class Mao(commands.Cog):
             s = s.replace(' ', '+')
             return s
 
-        if not displayed_text:
+        if not message_text:
             yesterday = date.today() - timedelta(days=1)
             cleaned_title = title.lower().replace(" ", "-")
             cleaned_title = ''.join(c for c in cleaned_title if c.isalnum() or c == '-')
             if template == 'NYTimes':
-                displayed_text = displayed_text or f'https://www.nytimes.com/{yesterday.strftime("%Y/%m/%d")}/politics/{cleaned_title}.html'
+                message_text = message_text or f'https://www.nytimes.com/{yesterday.strftime("%Y/%m/%d")}/politics/{cleaned_title}.html'
                 provider = provider or 'The New York Times'
                 author = author or 'By Mike Isaac'
                 preview_image_url = preview_image_url or 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
                 large_image = True
             elif template == 'AP News':
-                displayed_text = displayed_text or f'https://apnews.com/article/{cleaned_title}-d2d1bac8e8666c681937665596a4f603'
+                message_text = message_text or f'https://apnews.com/article/{cleaned_title}-d2d1bac8e8666c681937665596a4f603'
                 provider = provider or 'The New York Times'
                 author = author or 'By Mike Isaac'
                 preview_image_url = preview_image_url or 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
                 large_image = False
             elif template == 'BBC':
-                displayed_text = displayed_text or f'https://www.bbc.com/news/articles/ce8767g4jdpo'
+                message_text = message_text or f'https://www.bbc.com/news/articles/ce8767g4jdpo'
                 provider = provider or 'BBC News'
                 author = author or 'By Mark Elliot'
                 preview_image_url = preview_image_url or 'https://static.wikia.nocookie.net/logopedia/images/b/ba/BBC_News_2019_%28Black_box%29.svg/revision/latest/scale-to-width-down/250?cb=20211024233853'
                 large_image = False
             elif template == 'Prospector':
-                displayed_text = displayed_text or f'https://prospector.com/11608/news/{cleaned_title}'
+                message_text = message_text or f'https://prospector.com/11608/news/{cleaned_title}'
                 provider = provider or 'The Prospector'
                 preview_image_url = preview_image_url or 'https://chsprospector.com/wp-content/uploads/2025/08/prospector-masthead-enhanced.png'
                 large_image = True
@@ -190,13 +190,13 @@ class Mao(commands.Cog):
         previewed_url += f'&large_image={str(large_image).lower()}'
 
         out = ''
-        if '//' in displayed_text:
-            sep = displayed_text.find('//') + 2
-            out += f'[{displayed_text[:sep]}](<{destination_url}>)'
+        if '//' in message_text:
+            sep = message_text.find('//') + 2
+            out += f'[{message_text[:sep]}](<{destination_url}>)'
         else:
             sep = 0
-        out += f'[{displayed_text[sep:-1]}](<{destination_url}>)'
-        out += f'[{displayed_text[-1]}]({previewed_url})'
+        out += f'[{message_text[sep:-1]}](<{destination_url}>)'
+        out += f'[{message_text[-1]}]({previewed_url})'
         
         await ctx.send(out)
 
