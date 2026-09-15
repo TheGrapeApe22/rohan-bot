@@ -158,8 +158,8 @@ class Mao(commands.Cog):
                 large_image = True
             elif template == 'AP News':
                 message_text = message_text or f'https://apnews.com/article/{cleaned_title}-d2d1bac8e8666c681937665596a4f603'
-                provider = provider or 'The New York Times'
-                author = author or 'By Mike Isaac'
+                provider = provider or 'AP News'
+                author = author or 'World News'
                 image_url = image_url or 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
                 large_image = False
             elif template == 'BBC':
