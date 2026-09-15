@@ -8,6 +8,7 @@ import json
 import discord
 from discord.ext import commands
 from typing import Literal
+from urllib.parse import quote_plus
 
 def pluralize(count):
     return '' if count == 1 else 's'
@@ -123,33 +124,14 @@ class Mao(commands.Cog):
         destination_url = 'https://discord.com/vanityurl/dotcom/steakpants/flour/flower/index11.html' # no making this a parameter, because abusable
 
         def cleaned(s: str) -> str:
-            replacements = {
-                '+': '%2B',
-                '%': '%25',
-                '&': '%26',
-                '?': '%3F',
-                '=': '%3D',
-                '/': '%2F',
-                '.': '%2E',
-                ',': '%2C',
-                '(': '%28',
-                ')': '%29',
-                ':': '%3A',
-                ';': '%3B',
-                "'": '%27',
-                '$': '%24',
-                '"': '%22',
-            }
-            if encode_characters:
-                for old, new in replacements.items():
-                    s = s.replace(old, new)
-            s = s.replace(' ', '+')
+            s = quote_plus(s, safe='')
             return s
 
         if not message_text:
             yesterday = date.today() - timedelta(days=1)
             cleaned_title = title.lower().replace(" ", "-")
             cleaned_title = ''.join(c for c in cleaned_title if c.isalnum() or c == '-')
+            cleaned_title = cleaned_title or 'index'
             if template == 'NYTimes':
                 message_text = message_text or f'https://www.nytimes.com/{yesterday.strftime("%Y/%m/%d")}/politics/{cleaned_title}.html'
                 provider = provider or 'The New York Times'
@@ -197,8 +179,11 @@ class Mao(commands.Cog):
             sep = 0
         out += f'[{message_text[sep:-1]}](<{destination_url}>)'
         out += f'[{message_text[-1]}]({previewed_url})'
-        
-        await ctx.send(out)
+
+        if len(out) > 2000:
+            await ctx.send(f"Message ({len(out)} characters) too long to send.")
+        else:
+            await ctx.send(out)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Mao(bot))
