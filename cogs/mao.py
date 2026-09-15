@@ -119,7 +119,7 @@ class Mao(commands.Cog):
             await ctx.send(f'{prefix}```java\nclass sentence {{\n  public static void main(String[] args) {{\n    System.out.println("{message}");\n  }}\n}}\n```')
 
     @commands.hybrid_command(help="generate a funny website preview with a different redirect")
-    async def breaking_news(self, ctx, title: str, description: str='', image_url: str='', message_text: str='', provider: str='', author: str='', large_image: bool=True, encode_characters: bool=False, template: Literal['NYTimes', 'AP News', 'Prospector', 'BBC', 'None']='NYTimes'):
+    async def breaking_news(self, ctx, title: str, description: str='', image_url: str='', message_text: str='', provider: str='', author: str='', large_image: bool=True, encode_characters: bool=True, template: Literal['NYTimes', 'AP News', 'Prospector', 'BBC', 'None']='NYTimes'):
         destination_url = 'https://discord.com/vanityurl/dotcom/steakpants/flour/flower/index11.html' # no making this a parameter, because abusable
 
         def cleaned(s: str) -> str:
@@ -175,7 +175,7 @@ class Mao(commands.Cog):
                 large_image = True
 
         previewed_url = os.getenv('PREVIEWED_URL')
-        previewed_url += f'?title={cleaned(title)}'
+        previewed_url += f'/?title={cleaned(title)}'
         if description:
             previewed_url += f'&description={cleaned(description)}'
         if image_url:
