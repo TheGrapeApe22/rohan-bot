@@ -13,9 +13,6 @@ class Core(commands.Cog):
             return
         if self.bot.user.mentioned_in(message): #type: ignore
             await reply(message, f"heck you")
-        
-        ctx = await self.bot.get_context(message)
-        await self.bot.process_commands(message)
 
     # .say
     @commands.hybrid_command(help="Repeats your message. Usage: `.say <message>`")
