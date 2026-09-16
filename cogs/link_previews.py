@@ -1,21 +1,17 @@
-import discord
-from discord.ext import commands
-from dotenv.variables import Literal
+import asyncio
 import os
 from datetime import date, timedelta
 from typing import Literal
 from urllib.parse import quote_plus
+
+import discord
+from discord.ext import commands
+
 from chromium_session import ChromiumSession
 
 class LinkPreviews(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        try:
-            self.session = ChromiumSession()
-        except Exception as e:
-            print(f"chromium session error: {e}")
-        finally:
-            self.session.close()
 
     @commands.hybrid_command(help="generate a funny website preview with a different redirect")
     async def breaking_news(self, ctx, title: str, description: str=None, image_url: str=None, fake_url: str=None, provider: str=None, author: str=None, large_image: bool=True, template: Literal['NYTimes', 'AP News', 'Prospector', 'BBC', 'None']='None'):
@@ -85,18 +81,19 @@ class LinkPreviews(commands.Cog):
     @commands.hybrid_command(help="convert link to rickroll link")
     async def rickroll(self, ctx, link: str):
         try:
-            res = self.session.get_link_preview(link)
-            await self.breaking_news(
-                ctx,
-                title=res['title'],
-                description=res['description'],
-                image_url=res['image'],
-                fake_url=link,
-                provider=res['provider_name'],
-                author=res['author_name'] or res['site_name'],
-                large_image=res['card'] == 'summary_large_image',
-                template='None'
-            )
+            async with await ChromiumSession.create() as session:
+                res = await session.get_metadata(link)
+                await self.breaking_news(
+                    ctx,
+                    title=res['title'],
+                    description=res['description'],
+                    image_url=res['image'],
+                    fake_url=link,
+                    provider=res['provider_name'],
+                    author=res['author_name'] or res['site_name'],
+                    large_image=res['card'] == 'summary_large_image',
+                    template='None'
+                )
 
         except Exception as e:
             await ctx.send(f"Error: {e}")
