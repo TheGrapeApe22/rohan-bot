@@ -12,6 +12,10 @@ class PageTooLargeError(ValueError):
     pass
 
 
+class HttpStatusError(RuntimeError):
+    pass
+
+
 class ChromiumSession:
     def __init__(
         self,
@@ -61,7 +65,13 @@ class ChromiumSession:
             # "commit" returns as soon as response headers arrive, before the
             # document is fully downloaded and parsed.
             response = await page.goto(url, wait_until="commit")
-            content_length = response.headers.get("content-length") if response else None
+
+            if response is None:
+                raise HttpStatusError("Page did not return an HTTP response.")
+            if response.status != 200:
+                raise HttpStatusError(f"Page returned HTTP {response.status}: {url}")
+            
+            content_length = response.headers.get("content-length")
             if content_length:
                 try:
                     declared_size = int(content_length)
@@ -90,6 +100,7 @@ class ChromiumSession:
         soup = BeautifulSoup(html, "html.parser")
 
         title = soup.find("meta", property="og:title")
+        title_text = title.get("content") if title else soup.find("title").text
         description = soup.find("meta", property="og:description")
         image = soup.find("meta", property="og:image")
         site_name = soup.find("meta", property="og:site_name")
@@ -113,7 +124,7 @@ class ChromiumSession:
             provider_name = oembed_data.get("provider_name")
 
         return {
-            "title": title.get("content") if title else None,
+            "title": title_text if title_text else None,
             "description": description.get("content") if description else None,
             "image": image.get("content") if image else None,
             "site_name": site_name.get("content") if site_name else None,
@@ -140,8 +151,11 @@ async def main() -> None:
     url2 = "https://chsprospector.com/"
     url3 = "https://docs.google.com/spreadsheets/d/1l9prl692D_6PZLwiFYWFmzkBNQOoIL0Vg5v6HwuQMBA/edit?gid=0#gid=0"
 
+    # url = input('enter url: ')
+    url = 'https://excelwithchess.com/schools/homework/'
+
     async with await ChromiumSession.create() as session:
-        print(await session.get_metadata(url1))
+        print(await session.get_metadata(url))
 
 
 if __name__ == "__main__":

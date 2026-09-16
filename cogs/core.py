@@ -1,11 +1,6 @@
 from discord.ext import commands
 from utils import reply
 import asyncio
-try:
-    from handler import handle_message # type:ignore
-except:
-    print('no handler :(')
-    pass
 
 class Core(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -20,10 +15,6 @@ class Core(commands.Cog):
             await reply(message, f"heck you")
         
         ctx = await self.bot.get_context(message)
-        try:
-            await handle_message(self.bot, ctx)
-        except:
-            pass
         await self.bot.process_commands(message)
 
     # .say

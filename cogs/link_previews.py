@@ -14,25 +14,31 @@ class LinkPreviews(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(help="generate a funny website preview with a different redirect")
-    async def breaking_news(self, ctx, title: str, description: str=None, image_url: str=None, fake_url: str=None, provider: str=None, author: str=None, large_image: bool=True, template: Literal['NYTimes', 'AP News', 'Prospector', 'BBC', 'None']='None'):
+    async def breaking_news(self, ctx, title: str=None, description: str=None, image_url: str=None, fake_url: str=None, provider: str=None, author: str=None, large_image: bool=True, template: Literal['NYTimes', 'AP News', 'Prospector', 'BBC', 'None']='None'):
         destination_url = 'https://discord.com/vanityurl/dotcom/steakpants/flour/flower/index11.html' # no making this a parameter, because abusable
 
         def cleaned(s: str) -> str:
-            return quote_plus(s, safe='')
+            try:
+                return quote_plus(s, safe='')
+            except Exception:
+                return ''
 
-        if not fake_url:
-            yesterday = date.today() - timedelta(days=1)
-            cleaned_title = title.lower().replace(' ', '-')
-            cleaned_title = ''.join(c for c in cleaned_title if c.isalnum() or c == '-')
-            cleaned_title = cleaned_title or 'index'
+        if title:
+            title_in_url = title.lower().replace(' ', '-')
+            title_in_url = ''.join(c for c in title_in_url if c.isalnum() or c == '-')
+            title_in_url = title_in_url or 'index'
+        else:
+            title_in_url = 'index'
+
         if template == 'NYTimes':
-            fake_url = fake_url or f'https://www.nytimes.com/{yesterday.strftime("%Y/%m/%d")}/politics/{cleaned_title}.html'
+            yesterday = date.today() - timedelta(days=1)
+            fake_url = fake_url or f'https://www.nytimes.com/{yesterday.strftime("%Y/%m/%d")}/politics/{title_in_url}.html'
             provider = provider or 'The New York Times'
             author = author or 'By Mike Isaac'
             image_url = image_url or 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
             large_image = True
         elif template == 'AP News':
-            fake_url = fake_url or f'https://apnews.com/article/{cleaned_title}-d2d1bac8e8666c681937665596a4f603'
+            fake_url = fake_url or f'https://apnews.com/article/{title_in_url}-d2d1bac8e8666c681937665596a4f603'
             provider = provider or 'AP News'
             author = author or 'World News'
             image_url = image_url or 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
@@ -44,25 +50,35 @@ class LinkPreviews(commands.Cog):
             image_url = image_url or 'https://static.wikia.nocookie.net/logopedia/images/b/ba/BBC_News_2019_%28Black_box%29.svg/revision/latest/scale-to-width-down/250?cb=20211024233853'
             large_image = False
         elif template == 'Prospector':
-            fake_url = fake_url or f'https://prospector.com/11608/news/{cleaned_title}'
+            fake_url = fake_url or f'https://prospector.com/11608/news/{title_in_url}'
             provider = provider or 'The Prospector'
             image_url = image_url or 'https://chsprospector.com/wp-content/uploads/2025/08/prospector-masthead-enhanced.png'
             large_image = True
 
+        first = True
+        def conj():
+            nonlocal first
+            if first:
+                first = False
+                return '/?'
+            else:
+                return '&'
+    
         previewed_url = os.getenv('PREVIEWED_URL')
-        previewed_url += f'/?title={cleaned(title)}'
+        if title:
+            previewed_url += f'{conj()}title={cleaned(title) or ""}'
         if description:
-            previewed_url += f'&description={cleaned(description)}'
+            previewed_url += f'{conj()}description={cleaned(description)}'
         if image_url:
-            previewed_url += f'&image={cleaned(image_url)}'
+            previewed_url += f'{conj()}image={cleaned(image_url)}'
         if provider:
-            previewed_url += f'&provider_name={cleaned(provider)}'
+            previewed_url += f'{conj()}provider_name={cleaned(provider)}'
         if author:
-            previewed_url += f'&author_name={cleaned(author)}'
-        previewed_url += f'&author_url={cleaned(destination_url)}'
-        previewed_url += f'&provider_url={cleaned(destination_url)}'
-        previewed_url += f'&appear_url={cleaned(fake_url)}'
-        previewed_url += f'&large_image={str(large_image).lower()}'
+            previewed_url += f'{conj()}author_name={cleaned(author)}'
+        previewed_url += f'{conj()}author_url={cleaned(destination_url)}'
+        previewed_url += f'{conj()}provider_url={cleaned(destination_url)}'
+        previewed_url += f'{conj()}appear_url={cleaned(fake_url)}'
+        previewed_url += f'{conj()}large_image={str(large_image).lower()}'
 
         out = ''
         if '//' in fake_url:
@@ -89,8 +105,8 @@ class LinkPreviews(commands.Cog):
                     description=res['description'],
                     image_url=res['image'],
                     fake_url=link,
-                    provider=res['provider_name'],
-                    author=res['author_name'] or res['site_name'],
+                    provider=res['provider_name'] or res['site_name'],
+                    author=res['author_name'],
                     large_image=res['card'] == 'summary_large_image',
                     template='None'
                 )
