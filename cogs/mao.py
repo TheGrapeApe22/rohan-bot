@@ -1,6 +1,4 @@
 import random
-import os
-from datetime import date, timedelta
 
 from soliloquy import construct_abomination, seven_bag
 from pathlib import Path
@@ -8,7 +6,6 @@ import json
 import discord
 from discord.ext import commands
 from typing import Literal
-from urllib.parse import quote_plus
 
 def pluralize(count):
     return '' if count == 1 else 's'
@@ -118,71 +115,6 @@ class Mao(commands.Cog):
             await ctx.send(f"{prefix}```cpp\n#include <iostream>\n#define cheese int\n#define Cheese main\n#define cHeese (\n#define CHeese )\n#define chEese {{\n#define ChEese std\n#define cHEese ::\n#define CHEese cout\n#define cheEse <<\n#define CheEse \"{message}\"\n#define cHeEse endl\n#define CHeEse ;\n#define chEEse }}\n\ncheese Cheese cHeese CHeese chEese\n    ChEese cHEese CHEese cheEse CheEse cheEse ChEese cHEese cHeEse CHeEse\nchEEse\n```")
         elif language == 'Java':
             await ctx.send(f'{prefix}```java\nclass sentence {{\n  public static void main(String[] args) {{\n    System.out.println("{message}");\n  }}\n}}\n```')
-
-    @commands.hybrid_command(help="generate a funny website preview with a different redirect")
-    async def breaking_news(self, ctx, title: str, description: str='', image_url: str='', fake_url: str='', provider: str='', author: str='', large_image: bool=True, template: Literal['NYTimes', 'AP News', 'Prospector', 'BBC', 'None']='NYTimes'):
-        destination_url = 'https://discord.com/vanityurl/dotcom/steakpants/flour/flower/index11.html' # no making this a parameter, because abusable
-
-        def cleaned(s: str) -> str:
-            return quote_plus(s, safe='')
-
-        if not fake_url:
-            yesterday = date.today() - timedelta(days=1)
-            cleaned_title = title.lower().replace(' ', '-')
-            cleaned_title = ''.join(c for c in cleaned_title if c.isalnum() or c == '-')
-            cleaned_title = cleaned_title or 'index'
-        if template == 'NYTimes':
-            fake_url = fake_url or f'https://www.nytimes.com/{yesterday.strftime("%Y/%m/%d")}/politics/{cleaned_title}.html'
-            provider = provider or 'The New York Times'
-            author = author or 'By Mike Isaac'
-            image_url = image_url or 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
-            large_image = True
-        elif template == 'AP News':
-            fake_url = fake_url or f'https://apnews.com/article/{cleaned_title}-d2d1bac8e8666c681937665596a4f603'
-            provider = provider or 'AP News'
-            author = author or 'World News'
-            image_url = image_url or 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
-            large_image = False
-        elif template == 'BBC':
-            fake_url = fake_url or f'https://www.bbc.com/news/articles/ce8767g4jdpo'
-            provider = provider or 'BBC News'
-            author = author or 'By Mark Elliot'
-            image_url = image_url or 'https://static.wikia.nocookie.net/logopedia/images/b/ba/BBC_News_2019_%28Black_box%29.svg/revision/latest/scale-to-width-down/250?cb=20211024233853'
-            large_image = False
-        elif template == 'Prospector':
-            fake_url = fake_url or f'https://prospector.com/11608/news/{cleaned_title}'
-            provider = provider or 'The Prospector'
-            image_url = image_url or 'https://chsprospector.com/wp-content/uploads/2025/08/prospector-masthead-enhanced.png'
-            large_image = True
-
-        previewed_url = os.getenv('PREVIEWED_URL')
-        previewed_url += f'/?title={cleaned(title)}'
-        if description:
-            previewed_url += f'&description={cleaned(description)}'
-        if image_url:
-            previewed_url += f'&image={cleaned(image_url)}'
-        if provider:
-            previewed_url += f'&provider_name={cleaned(provider)}'
-        if author:
-            previewed_url += f'&author_name={cleaned(author)}'
-        previewed_url += f'&author_url={cleaned(destination_url)}'
-        previewed_url += f'&provider_url={cleaned(destination_url)}'
-        previewed_url += f'&appear_url={cleaned(fake_url)}'
-        previewed_url += f'&large_image={str(large_image).lower()}'
-
-        out = ''
-        if '//' in fake_url:
-            sep = fake_url.find('//') + 2
-            out += f'[{fake_url[:sep]}](<{destination_url}>)'
-        else:
-            sep = 0
-        out += f'[{fake_url[sep:-1]}](<{destination_url}>)'
-        out += f'[{fake_url[-1]}]({previewed_url})'
-
-        if len(out) > 2000:
-            await ctx.send(f"Message ({len(out)} characters) too long to send.")
-        else:
-            await ctx.send(out)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Mao(bot))
