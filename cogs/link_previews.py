@@ -17,11 +17,8 @@ class LinkPreviews(commands.Cog):
     async def breaking_news(self, ctx, title: str=None, description: str=None, image_url: str=None, fake_url: str=None, provider: str=None, author: str=None, large_image: bool=True, template: Literal['NYTimes', 'AP News', 'Prospector', 'BBC', 'None']='None'):
         destination_url = 'https://discord.com/vanityurl/dotcom/steakpants/flour/flower/index11.html' # no making this a parameter, because abusable
 
-        def cleaned(s: str) -> str:
-            try:
-                return quote_plus(s, safe='')
-            except Exception:
-                return ''
+        def cleaned(value: str | None) -> str:
+            return quote_plus(value or '', safe='')
 
         if title:
             title_in_url = title.lower().replace(' ', '-')
@@ -77,7 +74,7 @@ class LinkPreviews(commands.Cog):
             previewed_url += f'{conj()}author_name={cleaned(author)}'
         previewed_url += f'{conj()}author_url={cleaned(destination_url)}'
         previewed_url += f'{conj()}provider_url={cleaned(destination_url)}'
-        previewed_url += f'{conj()}appear_url={cleaned(fake_url)}'
+        previewed_url += f'{conj()}appear_url={cleaned(fake_url or "https://www.example.com")}'
         previewed_url += f'{conj()}large_image={str(large_image).lower()}'
 
         out = ''
@@ -92,7 +89,7 @@ class LinkPreviews(commands.Cog):
         if len(out) > 2000:
             await ctx.send(f"Message ({len(out)} characters) too long to send.")
         else:
-            await ctx.send(out)
+            await ctx.send(out, allowed_mentions=discord.AllowedMentions.none())
 
     @commands.hybrid_command(help="convert link to rickroll link")
     async def rickroll(self, ctx, link: str):

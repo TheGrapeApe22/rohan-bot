@@ -1,4 +1,7 @@
+import asyncio
+import ipaddress
 import json
+import socket
 from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup
@@ -31,31 +34,73 @@ class ChromiumSession:
 
     @classmethod
     async def create(
-        cls, headless: bool = True, max_page_bytes: int = 5_000_000
+        cls,
+        headless: bool = True,
+        max_page_bytes: int = 5_000_000,
+        navigation_timeout_ms: int = 15_000,
     ) -> "ChromiumSession":
         playwright = await async_playwright().start()
         browser = await playwright.chromium.launch(headless=headless)
-        context = await browser.new_context()
+        context = await browser.new_context(java_script_enabled=False)
+        context.set_default_navigation_timeout(navigation_timeout_ms)
         return cls(playwright, browser, context, max_page_bytes)
 
     async def get_page(self, url: str) -> Page:
         """Navigate in this Chromium session and return a new page."""
-        self._validate_url(url)
+        await self._validate_url(url)
         page = await self.context.new_page()
         await page.goto(url, wait_until="domcontentloaded")
         return page
 
-    def _validate_url(self, url: str) -> None:
-        parsed_url = urlparse(url)
-        if parsed_url.scheme not in {"http", "https"} or not parsed_url.netloc:
+    async def _validate_url(self, url: str) -> None:
+        if not isinstance(url, str) or len(url) > 2_048:
+            raise InvalidUrlError("URL must be a string no longer than 2,048 characters.")
+
+        try:
+            parsed_url = urlparse(url)
+            hostname = parsed_url.hostname
+            port = parsed_url.port
+        except ValueError as error:
+            raise InvalidUrlError("URL is malformed.") from error
+
+        if (
+            parsed_url.scheme not in {"http", "https"}
+            or not hostname
+            or parsed_url.username
+            or parsed_url.password
+            or port not in {None, 80, 443}
+        ):
             raise InvalidUrlError("URL must be an absolute HTTP or HTTPS URL.")
+
+        try:
+            addresses = {
+                info[4][0]
+                for info in await asyncio.get_running_loop().getaddrinfo(
+                    hostname, None, type=socket.SOCK_STREAM
+                )
+            }
+        except socket.gaierror as error:
+            raise InvalidUrlError("URL hostname could not be resolved.") from error
+
+        if not addresses or any(
+            not ipaddress.ip_address(address).is_global for address in addresses
+        ):
+            raise InvalidUrlError("URL must resolve only to public IP addresses.")
 
     async def _get_limited_content(self, url: str) -> str:
         page = await self.context.new_page()
+        blocked_url: str | None = None
 
         async def block_non_document_resources(route) -> None:
+            nonlocal blocked_url
             if route.request.resource_type == "document":
-                await route.continue_()
+                try:
+                    await self._validate_url(route.request.url)
+                except InvalidUrlError:
+                    blocked_url = route.request.url
+                    await route.abort()
+                else:
+                    await route.continue_()
             else:
                 await route.abort()
 
@@ -91,16 +136,27 @@ class ChromiumSession:
                 )
 
             return content
+        except Exception as error:
+            if blocked_url:
+                raise InvalidUrlError(
+                    f"Navigation to unsafe URL was blocked: {blocked_url}"
+                ) from error
+            raise
         finally:
             await page.close()
 
     async def get_metadata(self, url: str) -> dict[str, str | None]:
-        self._validate_url(url)
+        await self._validate_url(url)
         html = await self._get_limited_content(url)
         soup = BeautifulSoup(html, "html.parser")
 
         title = soup.find("meta", property="og:title")
-        title_text = title.get("content") if title else soup.find("title").text
+        html_title = soup.find("title")
+        title_text = (
+            title.get("content")
+            if title
+            else html_title.get_text(strip=True) if html_title else None
+        )
         description = soup.find("meta", property="og:description")
         image = soup.find("meta", property="og:image")
         site_name = soup.find("meta", property="og:site_name")
@@ -117,7 +173,9 @@ class ChromiumSession:
         provider_name = None
 
         if oembed_url:
-            self._validate_url(oembed_url)
+            await self._validate_url(oembed_url)
+            if urlparse(oembed_url).hostname != urlparse(url).hostname:
+                raise InvalidUrlError("Cross-host oEmbed URLs are not allowed.")
             oembed_html = await self._get_limited_content(oembed_url)
             oembed_data = json.loads(BeautifulSoup(oembed_html, "html.parser").get_text())
             author_name = oembed_data.get("author_name")
