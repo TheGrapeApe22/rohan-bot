@@ -37,7 +37,7 @@ class ChromiumSession:
         cls,
         headless: bool = True,
         max_page_bytes: int = 5_000_000,
-        navigation_timeout_ms: int = 15_000,
+        navigation_timeout_ms: int = 2_000,
     ) -> "ChromiumSession":
         playwright = await async_playwright().start()
         browser = await playwright.chromium.launch(headless=headless)
@@ -209,8 +209,8 @@ async def main() -> None:
     url2 = "https://chsprospector.com/"
     url3 = "https://docs.google.com/spreadsheets/d/1l9prl692D_6PZLwiFYWFmzkBNQOoIL0Vg5v6HwuQMBA/edit?gid=0#gid=0"
 
-    # url = input('enter url: ')
-    url = 'https://excelwithchess.com/schools/homework/'
+    url = input('enter url: ')
+    # url = 'https://excelwithchess.com/schools/homework/'
 
     async with await ChromiumSession.create() as session:
         print(await session.get_metadata(url))
