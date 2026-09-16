@@ -94,7 +94,7 @@ class LinkPreviews(commands.Cog):
         else:
             await ctx.send(out, allowed_mentions=discord.AllowedMentions.none())
 
-    @commands.hybrid_command(help="convert link to rickroll link")
+    @commands.hybrid_command(help="convert link to rickroll link (note: fails if the url redirects)")
     async def rickroll(self, ctx, link: str):
         try:
             async with await ChromiumSession.create() as session:
