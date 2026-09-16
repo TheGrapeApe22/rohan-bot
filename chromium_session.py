@@ -31,7 +31,7 @@ class ChromiumSession:
 
     @classmethod
     async def create(
-        cls, headless: bool = False, max_page_bytes: int = 5_000_000
+        cls, headless: bool = True, max_page_bytes: int = 5_000_000
     ) -> "ChromiumSession":
         playwright = await async_playwright().start()
         browser = await playwright.chromium.launch(headless=headless)
