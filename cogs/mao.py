@@ -1,6 +1,6 @@
 import random
 
-from soliloquy import construct_abomination, seven_bag
+from utils.soliloquy import construct_abomination, seven_bag
 from pathlib import Path
 import json
 import discord

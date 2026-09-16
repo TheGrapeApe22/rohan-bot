@@ -7,7 +7,7 @@ from urllib.parse import quote_plus
 import discord
 from discord.ext import commands
 
-from chromium_session import ChromiumSession
+from utils.chromium_session import ChromiumSession
 
 class LinkPreviews(commands.Cog):
     def __init__(self, bot: commands.Bot):

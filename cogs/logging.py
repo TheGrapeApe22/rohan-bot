@@ -3,7 +3,7 @@ import os
 from discord.ext import commands
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
-from utils import reply
+from utils.reply import reply
 
 timezone = ZoneInfo("America/Los_Angeles")
 

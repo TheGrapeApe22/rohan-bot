@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands, tasks
 from dataclasses import dataclass
 from typing import Dict, Optional
-from utils import reply
+from utils.reply import reply
 
 # cog managing reminder streams per user, each with its own loop, delay, etc.
 
