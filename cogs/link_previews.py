@@ -99,7 +99,7 @@ class LinkPreviews(commands.Cog):
         try:
             async with await ChromiumSession.create() as session:
                 res = await session.get_metadata(link)
-                print(res)
+                # print(res)
                 await self.breaking_news(
                     ctx,
                     title=res['title'],
