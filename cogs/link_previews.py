@@ -122,10 +122,16 @@ class LinkPreviews(commands.Cog):
                 else:
                     # send the slash command as a literal
                     out = '/breaking_news'
-                    out += f' message_text: "{link}"'
+                    out += f' message_text: {link}'
                     for k in res.keys():
                         if res[k] is not None:
-                            out += f' {k}: {res[k]}'
+                            param = res[k]
+                            if k == 'description' and len(param) > 500:
+                                param = param[:500] + '...'
+                            elif k == 'image_url' and res[k][0] == '/':
+                                base_url = link.split('/')[0] + '//' + link.split('/')[2]
+                                param = f'{base_url}{res[k]}'
+                            out += f' {k}: {param}'
                     if code_blocks:
                         out = f'```\n{out}```'
                     await ctx.send(out)
