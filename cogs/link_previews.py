@@ -95,22 +95,40 @@ class LinkPreviews(commands.Cog):
             await ctx.send(out, allowed_mentions=discord.AllowedMentions.none())
 
     @commands.hybrid_command(help="convert link to rickroll link (note: fails if the url redirects)")
-    async def rickroll(self, ctx, link: str):
+    async def rickroll(self, ctx, link: str, output: Literal['link', 'breaking_news command'] = 'link', code_blocks: bool = True):
         try:
             async with await ChromiumSession.create() as session:
                 res = await session.get_metadata(link)
                 # print(res)
-                await self.breaking_news(
-                    ctx,
-                    title=res['title'],
-                    description=res['description'],
-                    image_url=res['image'],
-                    message_text=link,
-                    provider=res['provider_name'] or res['site_name'],
-                    author=res['author_name'],
-                    large_image=res['card'] == 'summary_large_image',
-                    template='None'
-                )
+                if output == 'link':
+                    # await self.breaking_news(
+                    #     ctx,
+                    #     title=res['title'],
+                    #     description=res['description'],
+                    #     image_url=res['image_url'],
+                    #     message_text=link,
+                    #     provider=res['provider'],
+                    #     author=res['author'],
+                    #     large_image=res['large_image'],
+                    #     template='None'
+                    # )
+                    
+                    await self.breaking_news(
+                        ctx,
+                        **{k: res[k] for k in res.keys() if res[k] is not None},
+                        message_text=link,
+                        template='None'
+                    )
+                else:
+                    # send the slash command as a literal
+                    out = '/breaking_news'
+                    out += f' message_text: "{link}"'
+                    for k in res.keys():
+                        if res[k] is not None:
+                            out += f' {k}: {res[k]}'
+                    if code_blocks:
+                        out = f'```\n{out}```'
+                    await ctx.send(out)
 
         except Exception as e:
             await ctx.send(f"Error: {e}")

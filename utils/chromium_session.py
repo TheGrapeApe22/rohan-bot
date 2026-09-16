@@ -184,12 +184,12 @@ class ChromiumSession:
         return {
             "title": title_text if title_text else None,
             "description": description.get("content") if description else None,
-            "image": image.get("content") if image else None,
-            "site_name": site_name.get("content") if site_name else None,
-            "card": card.get("content") if card else None,
-            "oembed": oembed_url,
-            "author_name": author_name,
-            "provider_name": provider_name,
+            "image_url": image.get("content") if image else None,
+            # "site_name": site_name.get("content") if site_name else None,
+            # "oembed": oembed_url,
+            "provider": provider_name or (site_name.get("content") if site_name else None),
+            "author": author_name,
+            "large_image": (card.get("content") == 'summary_large_image') if card else False,
         }
 
     async def close(self) -> None:
