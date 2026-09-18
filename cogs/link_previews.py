@@ -35,10 +35,10 @@ class LinkPreviews(commands.Cog):
             image_url = image_url or 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
             large_image = True
         elif template == 'AP News':
-            message_text = message_text or f'https://apnews.com/article/{title_in_url}-d2d1bac8e8666c681937665596a4f603'
+            message_text = message_text or f'https://apnews.com/article/{title_in_url}-a4f2c2392dd6b9f8cfb35eb0a4716092'
             provider = provider or 'AP News'
             author = author or 'World News'
-            image_url = image_url or 'https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png'
+            image_url = image_url or 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Associated_Press_logo_2012.svg/1280px-Associated_Press_logo_2012.svg.png'
             large_image = False
         elif template == 'BBC':
             message_text = message_text or f'https://www.bbc.com/news/articles/ce8767g4jdpo'
