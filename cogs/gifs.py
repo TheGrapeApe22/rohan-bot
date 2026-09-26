@@ -17,6 +17,10 @@ class Gifs(commands.Cog):
     async def niranjan_eyebrows(self, ctx):
         await ctx.send(file=discord.File("assets/gifs/niranjan_eyebrows.gif"))
 
+    @commands.hybrid_command(help="live niranjan reaction standing motionless gif")
+    async def live_niranjan_reaction(self, ctx):
+        await ctx.send(file=discord.File("assets/gifs/live_niranjan_reaction.gif"))
+
     @commands.hybrid_command(help="bk boykisser zoom in gif")
     async def bk_zoom(self, ctx):
         await ctx.send(file=discord.File("assets/gifs/boykisser_zoom.gif"))
