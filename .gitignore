@@ -14,5 +14,5 @@ loglog
 test.py
 
 cogs/command_audit.py
-data/
+data/*
 !data/delete_line.sh
