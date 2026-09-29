@@ -124,6 +124,10 @@ class Mao(commands.Cog):
         with open('david_lines.json', 'r') as f:
             lines = json.load(f)
         with open('david_lines.json', 'w') as f:
+            for line in lines:
+                if line['line'] == line:
+                    await ctx.send(f"Line already exists.")
+                    return
             lines.append({'cited_by': ctx.author.id, 'line': line, 'source': source})
             json.dump(lines, f)
         await ctx.send(f'Added line to Guoggins Pretrained Transformer:\n`{line}`')
