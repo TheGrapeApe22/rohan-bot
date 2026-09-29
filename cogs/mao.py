@@ -1,6 +1,8 @@
 import random
+import io
 
 from utils.soliloquy import construct_abomination, seven_bag
+from utils import david_lines
 from pathlib import Path
 import json
 import discord
@@ -121,30 +123,25 @@ class Mao(commands.Cog):
         if len(line) > 1900:
             await ctx.send(f"aborted; too long.")
             return
-        with open('david_lines.json', 'r') as f:
-            lines = json.load(f)
-        with open('david_lines.json', 'w') as f:
-            for other_line in lines:
-                if other_line['line'] == line:
-                    await ctx.send(f"Line already exists.")
-                    return
-            lines.append({'cited_by': ctx.author.id, 'line': line, 'source': source})
-            json.dump(lines, f, indent=4)
+        if not david_lines.add_line(ctx.author.id, line, source):
+            await ctx.send("Line already exists.")
+            return
         await ctx.send(f'Added line to Guoggins Pretrained Transformer:\n`{line}`')
+    # remove: sqlite3 david_lines.sqlite3 "DELETE FROM david_lines WHERE cited_by = 958167615833006121 AND line = 'test' AND source = '';"
 
     @commands.hybrid_command(help="list all lines from david guoggins pretrained transformer gpt")
     async def list_gpt_lines(self, ctx):
-        await ctx.send(file=discord.File('david_lines.json'))
+        lines = david_lines.all_lines()
+        contents = json.dumps(lines, indent=4).encode("utf-8")
+        await ctx.send(file=discord.File(io.BytesIO(contents), filename="david_lines.json"))
 
     @commands.hybrid_command(help="generate/get a line from david guoggins pretrained transformer gpt")
     async def guoggins_pretrained_transformer(self, ctx):
-        with open('david_lines.json', 'r') as f:
-            lines = json.load(f)
-        if not lines:
+        line_object = david_lines.random_line()
+        if line_object is None:
             await ctx.send("No lines found.")
             return
         
-        line_object = random.choice(lines)
         line_text = line_object["line"].replace("\\n", "\n> ")
         source_line = f'\n-# source: {line_object["source"]}' if line_object["source"] else ''
 
@@ -152,4 +149,5 @@ class Mao(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
+    david_lines.initialize()
     await bot.add_cog(Mao(bot))

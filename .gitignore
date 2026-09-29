@@ -17,3 +17,4 @@ test.py
 cogs/command_audit.py
 ignore_channels.txt
 david_lines.json
+david_lines.sqlite3
