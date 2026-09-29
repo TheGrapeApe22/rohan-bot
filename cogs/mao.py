@@ -116,5 +116,42 @@ class Mao(commands.Cog):
         elif language == 'Java':
             await ctx.send(f'{prefix}```java\nclass sentence {{\n  public static void main(String[] args) {{\n    System.out.println("{message}");\n  }}\n}}\n```')
 
+    @commands.hybrid_command(help="add a line to david guoggins pretrained transformer gpt")
+    async def add_gpt_line(self, ctx, line: str, source:str=''):
+        if len(line) > 1900:
+            await ctx.send(f"aborted; too long.")
+            return
+        with open('david_lines.json', 'r') as f:
+            lines = json.load(f)
+        with open('david_lines.json', 'w') as f:
+            lines.append({'cited_by': ctx.author.id, 'line': line, 'source': source})
+            json.dump(lines, f)
+        await ctx.send(f'Added line to Guoggins Pretrained Transformer:\n`{line}`')
+
+    @commands.hybrid_command(help="list all lines from david guoggins pretrained transformer gpt")
+    async def list_gpt_lines(self, ctx):
+        with open('david_lines.json', 'r') as f:
+            lines = json.load(f)
+        if not lines:
+            await ctx.send("No lines found.")
+            return
+        output = str(json.dumps(lines))
+        await ctx.send(f"{(output[0:1900] + '...') if len(output) > 1900 else output}")
+
+    @commands.hybrid_command(help="generate/get a line from david guoggins pretrained transformer gpt")
+    async def guoggins_pretrained_transformer(self, ctx):
+        with open('david_lines.json', 'r') as f:
+            lines = json.load(f)
+        if not lines:
+            await ctx.send("No lines found.")
+            return
+        
+        line_object = random.choice(lines)
+        line_text = line_object["line"].replace("\\n", "\n> ")
+        source_line = f'\n-# source: {line_object["source"]}' if line_object["source"] else ''
+
+        await ctx.send(f'*Guoggins Pretrained Transformer:*\n> {line_text}{source_line}')
+
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(Mao(bot))
