@@ -1,7 +1,8 @@
 import random
 import io
 
-from utils.soliloquy import construct_abomination, seven_bag
+from utils.soliloquy import construct_abomination
+from utils.seven_bag import seven_bag
 from utils import david_lines
 from pathlib import Path
 import json
@@ -18,6 +19,8 @@ class Mao(commands.Cog):
 
         self.folder_path = Path("assets/soliloquy/attachments")
         self.soliloquy_images = seven_bag([f'{self.folder_path}/{f.name}' for f in self.folder_path.iterdir()])
+
+        self.reset_gpt_seven_bag()
 
     # mao rules
     @commands.hybrid_command(help="increment a card count for a user, as a consequence for breaking a Mao rule")
@@ -131,6 +134,7 @@ class Mao(commands.Cog):
         await ctx.send(
             f'{action} Guoggins Pretrained Transformer:\n`{line}`{f"\n-# source: {source}" if source else ""}'
         )
+        self.reset_gpt_seven_bag()
     # remove: sqlite3 david_lines.sqlite3 "DELETE FROM david_lines WHERE cited_by = 958167615833006121 AND line = 'test' AND source = '';"
 
     @commands.hybrid_command(help="list all lines from david guoggins pretrained transformer gpt")
@@ -151,6 +155,8 @@ class Mao(commands.Cog):
 
         await ctx.send(f'*Guoggins Pretrained Transformer:*\n> {line_text}{source_line}')
 
+    def reset_gpt_seven_bag(self):
+        self.gpt_quote_indexes = seven_bag(range(len(david_lines.all_lines())))
 
 async def setup(bot: commands.Bot):
     david_lines.initialize()
