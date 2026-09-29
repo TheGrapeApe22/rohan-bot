@@ -1,5 +1,5 @@
 # 7bag from tetris
-from random import random
+import random
 
 
 class seven_bag:

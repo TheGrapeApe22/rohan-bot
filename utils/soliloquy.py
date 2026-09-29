@@ -1,6 +1,6 @@
 import random
 import re
-from seven_bag import seven_bag
+from utils.seven_bag import seven_bag
 
 with open('assets/soliloquy/sentences.txt') as f:
     sentences = seven_bag([s for s in f.read().splitlines() if s])

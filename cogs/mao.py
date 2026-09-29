@@ -156,7 +156,7 @@ class Mao(commands.Cog):
         await ctx.send(f'*Guoggins Pretrained Transformer:*\n> {line_text}{source_line}')
 
     def reset_gpt_seven_bag(self):
-        self.gpt_quote_indexes = seven_bag(range(len(david_lines.all_lines())))
+        self.gpt_quote_indexes = seven_bag(list(range(len(david_lines.all_lines()))))
 
 async def setup(bot: commands.Bot):
     david_lines.initialize()
