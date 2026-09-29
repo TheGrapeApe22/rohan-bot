@@ -145,7 +145,7 @@ class Mao(commands.Cog):
 
     @commands.hybrid_command(help="generate/get a line from david guoggins pretrained transformer gpt")
     async def guoggins_pretrained_transformer(self, ctx):
-        line_object = david_lines.random_line()
+        line_object = david_lines.all_lines()[self.gpt_quote_indexes.get_item()]
         if line_object is None:
             await ctx.send("No lines found.")
             return
