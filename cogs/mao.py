@@ -22,25 +22,25 @@ class Mao(commands.Cog):
     # mao rules
     @commands.hybrid_command(help="increment a card count for a user, as a consequence for breaking a Mao rule")
     async def give_card(self, ctx, user: discord.User, reason: str = '', ping: bool = True):
-        with open("cards.json", "r") as f:
+        with open("data/cards.json", "r") as f:
             cards = json.load(f)
         user_id = str(user.id)
         if user_id not in cards:
             cards[user_id] = 0
         cards[user_id] += 1
-        with open("cards.json", "w") as f:
+        with open("data/cards.json", "w") as f:
             json.dump(cards, f, indent=4)
         await ctx.send(f"{reason}{'\n' if reason else ''}{user.mention if ping else user.name} now has {cards[user_id]} card{pluralize(cards[user_id])}.")
     @commands.hybrid_command(help="check how many cards a user has")
     async def get_card_count(self, ctx, user: discord.User, ping: bool = True):
-        with open("cards.json", "r") as f:
+        with open("data/cards.json", "r") as f:
             cards = json.load(f)
         user_id = str(user.id)
         count = cards.get(user_id, 0)
         await ctx.send(f"{user.mention if ping else user.name} has {count} card{pluralize(count)}.")
     @commands.hybrid_command(help="show the card counts for all users")
     async def leaderboard(self, ctx):
-        with open("cards.json", "r") as f:
+        with open("data/cards.json", "r") as f:
             cards = json.load(f)
         if not cards:
             await ctx.send("(empty)")

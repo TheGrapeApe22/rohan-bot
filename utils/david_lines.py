@@ -3,7 +3,7 @@ from contextlib import closing
 from pathlib import Path
 
 
-DATABASE_PATH = Path("david_lines.sqlite3")
+DATABASE_PATH = Path("data/david_lines.sqlite3")
 
 
 def initialize():

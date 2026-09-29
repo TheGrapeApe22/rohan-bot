@@ -39,6 +39,6 @@ async def on_ready():
 
 bot.run(
     token,
-    log_handler=logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'),
+    log_handler=logging.FileHandler(filename='data/discord.log', encoding='utf-8', mode='w'),
     log_level=logging.DEBUG
 )

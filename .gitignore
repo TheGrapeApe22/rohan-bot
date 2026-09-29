@@ -9,12 +9,10 @@ logs/*
 !logs/test.txt
 cards.json
 
-discord.log
 handler.py
 loglog
 test.py
 
 cogs/command_audit.py
-ignore_channels.txt
-david_lines.json
-david_lines.sqlite3
+data/
+!data/delete_line.sh
