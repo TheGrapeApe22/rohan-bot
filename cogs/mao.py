@@ -134,13 +134,7 @@ class Mao(commands.Cog):
 
     @commands.hybrid_command(help="list all lines from david guoggins pretrained transformer gpt")
     async def list_gpt_lines(self, ctx):
-        with open('david_lines.json', 'r') as f:
-            lines = json.load(f)
-        if not lines:
-            await ctx.send("No lines found.")
-            return
-        output = str(json.dumps(lines, indent=4))
-        await ctx.send(f"{(output[0:1900] + '...') if len(output) > 1900 else output}")
+        await ctx.send(file=discord.File('david_lines.json'))
 
     @commands.hybrid_command(help="generate/get a line from david guoggins pretrained transformer gpt")
     async def guoggins_pretrained_transformer(self, ctx):
