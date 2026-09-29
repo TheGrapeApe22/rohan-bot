@@ -119,14 +119,18 @@ class Mao(commands.Cog):
             await ctx.send(f'{prefix}```java\nclass sentence {{\n  public static void main(String[] args) {{\n    System.out.println("{message}");\n  }}\n}}\n```')
 
     @commands.hybrid_command(help="add a line to david guoggins pretrained transformer gpt")
-    async def add_gpt_line(self, ctx, line: str, source:str=''):
+    async def add_gpt_line(self, ctx, line: str, source: str | None = None):
         if len(line) > 1900:
             await ctx.send(f"aborted; too long.")
             return
-        if not david_lines.add_line(ctx.author.id, line, source):
+        result = david_lines.add_line(ctx.author.id, line, source)
+        if result == "duplicate":
             await ctx.send("Line already exists.")
             return
-        await ctx.send(f'Added line to Guoggins Pretrained Transformer:\n`{line}`')
+        action = "Added line to" if result == "added" else "Updated source for line in"
+        await ctx.send(
+            f'{action} Guoggins Pretrained Transformer:\n`{line}`{f"\n-# source: {source}" if source else ""}'
+        )
     # remove: sqlite3 david_lines.sqlite3 "DELETE FROM david_lines WHERE cited_by = 958167615833006121 AND line = 'test' AND source = '';"
 
     @commands.hybrid_command(help="list all lines from david guoggins pretrained transformer gpt")

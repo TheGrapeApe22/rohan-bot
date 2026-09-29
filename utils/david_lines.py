@@ -18,15 +18,24 @@ def initialize():
         )
 
 
-def add_line(cited_by: int, line: str, source: str) -> bool:
+def add_line(cited_by: int, line: str, source: str | None = None) -> str:
     with closing(sqlite3.connect(DATABASE_PATH)) as connection, connection:
-        cursor = connection.execute(
-            """INSERT INTO david_lines (cited_by, line, source)
-               SELECT ?, ?, ?
-               WHERE NOT EXISTS (SELECT 1 FROM david_lines WHERE line = ?)""",
-            (cited_by, line, source, line),
+        connection.execute("BEGIN IMMEDIATE")
+        exists = connection.execute(
+            "SELECT 1 FROM david_lines WHERE line = ? LIMIT 1", (line,)
+        ).fetchone()
+        if exists:
+            if source is None:
+                return "duplicate"
+            connection.execute(
+                "UPDATE david_lines SET source = ? WHERE line = ?", (source, line)
+            )
+            return "updated"
+        connection.execute(
+            "INSERT INTO david_lines (cited_by, line, source) VALUES (?, ?, ?)",
+            (cited_by, line, source if source is not None else ""),
         )
-        return cursor.rowcount == 1
+        return "added"
 
 
 def all_lines() -> list[dict]:
