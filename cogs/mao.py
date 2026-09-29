@@ -27,7 +27,7 @@ class Mao(commands.Cog):
             cards[user_id] = 0
         cards[user_id] += 1
         with open("cards.json", "w") as f:
-            json.dump(cards, f)
+            json.dump(cards, f, indent=4)
         await ctx.send(f"{reason}{'\n' if reason else ''}{user.mention if ping else user.name} now has {cards[user_id]} card{pluralize(cards[user_id])}.")
     @commands.hybrid_command(help="check how many cards a user has")
     async def get_card_count(self, ctx, user: discord.User, ping: bool = True):
