@@ -129,7 +129,7 @@ class Mao(commands.Cog):
                     await ctx.send(f"Line already exists.")
                     return
             lines.append({'cited_by': ctx.author.id, 'line': line, 'source': source})
-            json.dump(lines, f)
+            json.dump(lines, f, indent=4)
         await ctx.send(f'Added line to Guoggins Pretrained Transformer:\n`{line}`')
 
     @commands.hybrid_command(help="list all lines from david guoggins pretrained transformer gpt")
@@ -139,7 +139,7 @@ class Mao(commands.Cog):
         if not lines:
             await ctx.send("No lines found.")
             return
-        output = str(json.dumps(lines))
+        output = str(json.dumps(lines, indent=4))
         await ctx.send(f"{(output[0:1900] + '...') if len(output) > 1900 else output}")
 
     @commands.hybrid_command(help="generate/get a line from david guoggins pretrained transformer gpt")
