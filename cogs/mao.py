@@ -142,7 +142,7 @@ class Mao(commands.Cog):
             await ctx.send("No lines found.")
             return
         
-        line_text = line_object["line"].replace("\\n", "\n> ")
+        line_text = line_object["line"].replace("\\n", "\n").replace("\n", "\n> ")
         source_line = f'\n-# source: {line_object["source"]}' if line_object["source"] else ''
 
         await ctx.send(f'*Guoggins Pretrained Transformer:*\n> {line_text}{source_line}')
