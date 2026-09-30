@@ -5,7 +5,7 @@ import socket
 from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup
-from playwright.async_api import Browser, BrowserContext, Page, Playwright, async_playwright
+from playwright.async_api import Browser, BrowserContext, Page, Playwright, TimeoutError as PlaywrightTimeoutError, async_playwright
 
 
 class InvalidUrlError(ValueError):
@@ -16,6 +16,10 @@ class PageTooLargeError(ValueError):
 
 
 class HttpStatusError(RuntimeError):
+    pass
+
+
+class MetadataTimeoutError(RuntimeError):
     pass
 
 
@@ -37,7 +41,7 @@ class ChromiumSession:
         cls,
         headless: bool = True,
         max_page_bytes: int = 5_000_000,
-        navigation_timeout_ms: int = 2_000,
+        navigation_timeout_ms: int = 10_000,
     ) -> "ChromiumSession":
         playwright = await async_playwright().start()
         browser = await playwright.chromium.launch(headless=headless)
@@ -141,6 +145,8 @@ class ChromiumSession:
                 raise InvalidUrlError(
                     f"Navigation to unsafe URL was blocked: {blocked_url}"
                 ) from error
+            if isinstance(error, PlaywrightTimeoutError):
+                raise MetadataTimeoutError("The page took too long to load.") from error
             raise
         finally:
             await page.close()
@@ -176,10 +182,15 @@ class ChromiumSession:
             await self._validate_url(oembed_url)
             if urlparse(oembed_url).hostname != urlparse(url).hostname:
                 raise InvalidUrlError("Cross-host oEmbed URLs are not allowed.")
-            oembed_html = await self._get_limited_content(oembed_url)
-            oembed_data = json.loads(BeautifulSoup(oembed_html, "html.parser").get_text())
-            author_name = oembed_data.get("author_name")
-            provider_name = oembed_data.get("provider_name")
+            try:
+                oembed_html = await self._get_limited_content(oembed_url)
+            except MetadataTimeoutError:
+                # oEmbed is optional; keep metadata from the main document.
+                pass
+            else:
+                oembed_data = json.loads(BeautifulSoup(oembed_html, "html.parser").get_text())
+                author_name = oembed_data.get("author_name")
+                provider_name = oembed_data.get("provider_name")
 
         return {
             "title": title_text if title_text else None,
