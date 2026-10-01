@@ -1,5 +1,7 @@
+import asyncio
 import random
 import io
+import re
 
 from utils.soliloquy import construct_abomination
 from utils.seven_bag import seven_bag
@@ -21,6 +23,9 @@ class Mao(commands.Cog):
         self.soliloquy_images = seven_bag([f'{self.folder_path}/{f.name}' for f in self.folder_path.iterdir()])
 
         self.reset_gpt_seven_bag()
+
+        with open('data/niranjan_lines.txt', 'r') as f:
+            self.niranjan_lines = seven_bag(f.readlines())
 
     # mao rules
     @commands.hybrid_command(help="increment a card count for a user, as a consequence for breaking a Mao rule")
@@ -150,13 +155,42 @@ class Mao(commands.Cog):
             await ctx.send("No lines found.")
             return
         
-        line_text = line_object["line"].replace("\\n", "\n").replace("\n", "\n> ")
+        line_text = ('\n' + line_object["line"]).replace("\\n", "\n").replace("\n", "\n> ")
         source_line = f'\n-# source: {line_object["source"]}' if line_object["source"] else ''
 
-        await ctx.send(f'*Guoggins Pretrained Transformer:*\n> {line_text}{source_line}')
+        await self.gpt_animation(ctx, 'GuogginsPT is thinking...',
+            [
+                '*Guoggins Pretrained Transformer:*',
+                *self.split_tokens(line_text),
+                source_line
+            ]
+        )
 
     def reset_gpt_seven_bag(self):
         self.gpt_quote_indexes = seven_bag(list(range(len(david_lines.all_lines()))))
+
+    @commands.hybrid_command(help="niranjan norajan gpt")
+    async def norajan_gpt(self, ctx, prompt: str):
+        line = self.niranjan_lines.get_item()
+        word = random.choice(prompt.split() if prompt.split() else [''])
+        
+        line = line.replace('[word]', word)
+        line = '> ' + line
+
+        prefix = f'{ctx.author.name}: {prompt}\n'
+        await self.gpt_animation(ctx, f'{prefix}norajanGPT is thinking...', [f'{prefix}*norajanGPT:*\n', *self.split_tokens(line)])
+
+    @staticmethod
+    def split_tokens(s: str):
+        return re.findall(r'(?:\s*)\S+\s*', s)
+
+    async def gpt_animation(self, ctx, initial: str, split_output: list, initial_delay: float = 1.0):
+        # send initial message, wait a few seconds, then edit the message into output a few words at a time, as if it is outputting token by token
+        message = await ctx.send(initial)
+        await asyncio.sleep(initial_delay)
+        for i in range(len(split_output)):
+            await message.edit(content="".join(split_output[:i+1]))
+            # await asyncio.sleep(0.5)
 
 async def setup(bot: commands.Bot):
     david_lines.initialize()
