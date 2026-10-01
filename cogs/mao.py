@@ -178,7 +178,7 @@ class Mao(commands.Cog):
         line = '> ' + line
 
         prefix = f'{ctx.author.name}: {prompt}\n'
-        await self.gpt_animation(ctx, f'{prefix}-# *norajanGPT is thinking...*', [f'{prefix}*norajanGPT:*\n', *self.split_tokens(line)])
+        await self.gpt_animation(ctx, f'{prefix}-# *norajanGPT is [thinking...](https://media.discordapp.net/attachments/1539776111024676897/1555066719310061598/niranjan_eyebrows.gif?backend=b2&ex=6abf2c3d&is=6abddabd&hm=0e1bacad056662a55d8a963e5226c04a5e5f59c3e5083f4d6f41bcd55a987f03&=)*', [f'{prefix}*norajanGPT:*\n', *self.split_tokens(line)], initial_delay=3.0)
 
     @staticmethod
     def split_tokens(s: str):

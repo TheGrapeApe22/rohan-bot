@@ -5,6 +5,11 @@ class Gifs(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+
+    @commands.hybrid_command()
+    async def abg(self, ctx):
+        await ctx.send('<@1545680666828607533>', file=discord.File("assets/gifs/david_blurry_demonic.jpg"))
+
     @commands.hybrid_command(help="david reaction gif")
     async def david_reaction(self, ctx):
         await ctx.send(file=discord.File("assets/gifs/david_reaction.gif"))
