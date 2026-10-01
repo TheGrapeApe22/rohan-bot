@@ -158,7 +158,7 @@ class Mao(commands.Cog):
         line_text = ('\n' + line_object["line"]).replace("\\n", "\n").replace("\n", "\n> ")
         source_line = f'\n-# source: {line_object["source"]}' if line_object["source"] else ''
 
-        await self.gpt_animation(ctx, '-# GuogginsPT is thinking...',
+        await self.gpt_animation(ctx, '-# *GuogginsPT is thinking...*',
             [
                 '*Guoggins Pretrained Transformer:*',
                 *self.split_tokens(line_text),
@@ -178,7 +178,7 @@ class Mao(commands.Cog):
         line = '> ' + line
 
         prefix = f'{ctx.author.name}: {prompt}\n'
-        await self.gpt_animation(ctx, f'{prefix}-# norajanGPT is thinking...', [f'{prefix}*norajanGPT:*\n', *self.split_tokens(line)])
+        await self.gpt_animation(ctx, f'{prefix}-# *norajanGPT is thinking...*', [f'{prefix}*norajanGPT:*\n', *self.split_tokens(line)])
 
     @staticmethod
     def split_tokens(s: str):
