@@ -8,6 +8,7 @@ import discord
 from discord.ext import commands
 
 from utils.chromium_session import ChromiumSession
+import time
 
 class LinkPreviews(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -80,14 +81,9 @@ class LinkPreviews(commands.Cog):
         previewed_url += f'{conj()}large_image={str(large_image).lower()}'
 
         out = ''
-        if '//' in message_text:
-            sep = message_text.find('//') + 2
-            out += f'[{message_text[:sep]}](<{destination_url}>)'
-        else:
-            sep = 0
-        if len(message_text) > 1:
-            out += f'[{message_text[sep:-1]}](<{destination_url}>)'
-        out += f'[{message_text[-1]}]({previewed_url})'
+        message_text = message_text.replace('http', 'htt￴p')
+        out += f'[{message_text}](<{destination_url}>)'
+        out += f'[￴]({previewed_url})'
 
         if len(out) > 2000:
             await ctx.send(f"Message ({len(out)} characters) too long to send.")
@@ -139,6 +135,55 @@ class LinkPreviews(commands.Cog):
         except Exception as e:
             await ctx.send(f"Error: {e}")
 
+        
+    @commands.hybrid_command()
+    async def fetch(self, ctx, url) -> discord.Embed:
+        """Send URL in testing channel and fetch the embed Discord creates."""
+        channel = self.bot.get_channel(1555253605907300512)
+        message = await channel.send(url)
+        if message.embeds:
+            return message.embeds[0]
+
+        start_time = time.time()
+        while True:
+            if time.time() - start_time > 7:
+                break
+
+            print("fetching...")
+            message: discord.Message = await channel.fetch_message(message.id)
+            if message.embeds:
+                return message.embeds[0]
+
+            await asyncio.sleep(1)
+
+    @commands.hybrid_command()
+    async def preview(self, ctx, url):
+        """Preview the embed for a given URL."""
+        embed1 = await self.fetch(ctx, url)
+
+        
+
+        await ctx.send("test", embed=embed1)
+        if embed1:
+            await ctx.send(json.dumps(embed1.to_dict()))
+            await ctx.send('test', embed=embed1)
+        else:
+            await ctx.send("No embed found.")
+
+    @commands.hybrid_command()
+    async def testembed(self, ctx):
+        embed = discord.Embed.from_dict({
+            "title": "Test",
+            "description": "Testing author + provider",
+            "author": {
+                "name": "author"
+            },
+            "provider": {
+                "name": "provider"
+            }
+        })
+
+        await ctx.send(embed=embed)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(LinkPreviews(bot))
