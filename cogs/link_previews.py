@@ -9,6 +9,7 @@ from discord.ext import commands
 
 from utils.chromium_session import ChromiumSession
 import time
+import json
 
 class LinkPreviews(commands.Cog):
     def __init__(self, bot: commands.Bot):
