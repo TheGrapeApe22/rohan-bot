@@ -1,0 +1,32 @@
+{
+    "NYTimes": {
+        "message_text": "https://www.nytimes.com/[date]/politics/[title_in_url].html",
+        "provider": "The New York Times",
+        "author": "By Mike Isaac",
+        "image": "https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png",
+        "large_image": true
+    },
+    "AP News": {
+        "message_text": "https://apnews.com/article/[title_in_url]-a4f2c2392dd6b9f8cfb35eb0a4716092",
+        "provider": "AP News",
+        "author": "World News",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Associated_Press_logo_2012.svg/1280px-Associated_Press_logo_2012.svg.png",
+        "large_image": false
+    },
+    "BBC": {
+        "message_text": "https://www.bbc.com/news/articles/ce8767g4jdpo",
+        "provider": "BBC News",
+        "author": "By Mark Elliot",
+        "image": "https://static.wikia.nocookie.net/logopedia/images/b/ba/BBC_News_2019_%28Black_box%29.svg/revision/latest/scale-to-width-down/250?cb=20211024233853",
+        "large_image": false
+    },
+    "Prospector": {
+        "message_text": "https://prospector.com/11608/news/[title_in_url]",
+        "provider": "The Prospector",
+        "image": "https://chsprospector.com/wp-content/uploads/2025/08/prospector-masthead-enhanced.png",
+        "large_image": true
+    },
+    "None": {
+        "message_text": "cheese"
+    }
+}

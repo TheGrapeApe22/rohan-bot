@@ -16,3 +16,4 @@ test.py
 cogs/command_audit.py
 data/*
 !data/delete_line.sh
+!data/article_templates.json

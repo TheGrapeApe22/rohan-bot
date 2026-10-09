@@ -39,23 +39,23 @@ class Core(commands.Cog):
     @commands.hybrid_command()
     async def latency(self, ctx):
         await ctx.send(f"Latency: {round(self.bot.latency * 1000)} ms")
-        start = time.perf_counter()
-        # Discord gateway -> bot latency
-        gateway_ms = self.bot.latency * 1000
+        # start = time.perf_counter()
+        # # Discord gateway -> bot latency
+        # gateway_ms = self.bot.latency * 1000
 
-        # Send the initial interaction response
-        response_start = time.perf_counter()
+        # # Send the initial interaction response
+        # response_start = time.perf_counter()
 
-        try:
-            await ctx.send(
-                f"🏓 Pong!\n"
-                f"Gateway latency: `{gateway_ms:.0f} ms`\n"
-                f"Response request: `{(time.perf_counter() - response_start) * 1000:.0f} ms`\n"
-                f"Total handler time: `{(time.perf_counter() - start) * 1000:.0f} ms`"
-            )
-        except discord.HTTPException as e:
-            elapsed = (time.perf_counter() - start) * 1000
-            print(f"❌ Interaction response failed after {elapsed:.0f} ms: {e}")
+        # try:
+        #     await ctx.send(
+        #         f"🏓 Pong!\n"
+        #         f"Gateway latency: `{gateway_ms:.0f} ms`\n"
+        #         f"Response request: `{(time.perf_counter() - response_start) * 1000:.0f} ms`\n"
+        #         f"Total handler time: `{(time.perf_counter() - start) * 1000:.0f} ms`"
+        #     )
+        # except discord.HTTPException as e:
+        #     elapsed = (time.perf_counter() - start) * 1000
+        #     print(f"❌ Interaction response failed after {elapsed:.0f} ms: {e}")
 
     # send heck you to non-grapes
     @commands.Cog.listener()
