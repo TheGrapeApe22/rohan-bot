@@ -76,7 +76,7 @@ class LinkPreviews(commands.Cog):
             await ctx.send(f"Error: {e}")
 
     async def fetch(self, url) -> discord.Embed:
-        channel = self.bot.get_channel(os.getenv('EMBED_CHANNEL_ID'))
+        channel = self.bot.get_channel(int(os.getenv('EMBED_CHANNEL_ID')))
         message = await channel.send(url)
         if message.embeds:
             return message.embeds[0]
