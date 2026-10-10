@@ -11,7 +11,7 @@ here's a rundown of the cogs:
     * demo:
     ![rickroll_params.png](assets/readme/rickroll_params.png)
     ![rickroll_demo.png](assets/readme/rickroll_demo.png)
-    * rickroll command creates the preview profile based on a real webpage by extracting the content with playwright (`chromium_session.py`).
+    * rickroll command creates the preview profile based on a real webpage by extracting the content using a clever trick with discord's embed generator
 * `logging`: allows any message to be stored in a file with /log or .log, with timestamps+source, and viewable by day.
 * `mao` (fun stuff):
     * give_card/leaderboard: give cards to users as a penalty. track it with the leaderboard.

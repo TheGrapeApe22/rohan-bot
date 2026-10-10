@@ -7,7 +7,6 @@ from urllib.parse import urlencode
 import discord
 from discord.ext import commands
 
-from utils.chromium_session import ChromiumSession
 import time
 import json
 
@@ -96,14 +95,8 @@ class LinkPreviews(commands.Cog):
     @commands.hybrid_command()
     async def embeds(self, ctx, url):
         """Preview the embed for a given URL."""
-        embed1 = await self.fetch(url)
-
-        # await ctx.send("test", embed=embed1)
-        if embed1:
-            await ctx.send(json.dumps(embed1.to_dict(), indent=4))
-        #     await ctx.send('test', embed=embed1)
-        # else:
-        #     await ctx.send("No embed found.")
+        embed = await self.fetch(url)
+        await ctx.send(json.dumps(embed.to_dict(), indent=4))
 
     @commands.hybrid_command()
     async def testembed(self, ctx):
@@ -117,7 +110,6 @@ class LinkPreviews(commands.Cog):
                 "name": "provider"
             }
         })
-
         await ctx.send(embed=embed)
 
 async def setup(bot: commands.Bot):
