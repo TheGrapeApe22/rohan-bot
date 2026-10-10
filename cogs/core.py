@@ -37,25 +37,20 @@ class Core(commands.Cog):
 
 
     @commands.hybrid_command()
-    async def latency(self, ctx):
-        await ctx.send(f"Latency: {round(self.bot.latency * 1000)} ms")
-        # start = time.perf_counter()
-        # # Discord gateway -> bot latency
-        # gateway_ms = self.bot.latency * 1000
+    async def test1(self, ctx):
+        await ctx.send("cheese")
 
-        # # Send the initial interaction response
-        # response_start = time.perf_counter()
+    @commands.hybrid_command()
+    async def test2(self, ctx):
+        await ctx.defer()
+        await ctx.send("cheese")
 
-        # try:
-        #     await ctx.send(
-        #         f"🏓 Pong!\n"
-        #         f"Gateway latency: `{gateway_ms:.0f} ms`\n"
-        #         f"Response request: `{(time.perf_counter() - response_start) * 1000:.0f} ms`\n"
-        #         f"Total handler time: `{(time.perf_counter() - start) * 1000:.0f} ms`"
-        #     )
-        # except discord.HTTPException as e:
-        #     elapsed = (time.perf_counter() - start) * 1000
-        #     print(f"❌ Interaction response failed after {elapsed:.0f} ms: {e}")
+    @commands.hybrid_command()
+    async def test3(self, ctx):
+        await ctx.defer()
+        await asyncio.sleep(5)
+        await ctx.send("cheese")
+
 
     # send heck you to non-grapes
     @commands.Cog.listener()
