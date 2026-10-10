@@ -24,6 +24,13 @@ class Mao(commands.Cog):
 
         self.reset_gpt_seven_bag()
 
+        abgs = [str(f) for f in Path('assets/abg').iterdir() if f.is_file()]
+        for i in range(len(abgs)):
+            abg = abgs[i]
+            if abg[-5] not in ['1', '2']:
+                abgs.append(abg)
+        self.abg_bag = seven_bag(abgs)
+
         with open('data/niranjan_lines.txt', 'r') as f:
             self.niranjan_lines = seven_bag(f.readlines())
 
@@ -191,6 +198,10 @@ class Mao(commands.Cog):
         for i in range(len(split_output)):
             await message.edit(content="".join(split_output[:i+1]))
             # await asyncio.sleep(0.5)
+    
+    @commands.hybrid_command(help="send abomination image")
+    async def abg(self, ctx):
+        await ctx.send(file=discord.File(self.abg_bag.get_item()))
 
 async def setup(bot: commands.Bot):
     david_lines.initialize()
