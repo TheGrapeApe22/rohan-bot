@@ -35,7 +35,7 @@ class Core(commands.Cog):
     async def servers(self, ctx):
         guild_names = [guild.name for guild in self.bot.guilds]
         server_list = "\n".join(guild_names)
-        await ctx.send(f"I am in the following {len(self.bot.guilds)} servers:\n{server_list}")
+        await send(ctx, f"I am in the following {len(self.bot.guilds)} servers:\n{server_list}")
 
 
     @commands.hybrid_command()

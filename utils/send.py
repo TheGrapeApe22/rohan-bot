@@ -10,13 +10,13 @@ async def send(ctx: discord.Context, message: str, **kwargs):
     try:
         out = await ctx.send(length_proof(message), **kwargs)
         cache[ctx.channel.id] = ctx
+        return out
     except discord.errors.NotFound:
         if ctx.channel.id in cache:
-            message = f'-# {ctx.author.name} used `{get_command_string(ctx.interaction)}`\n{message}'
-            out = await cache[ctx.channel.id].send(length_proof(message), **kwargs)
-            return out
+            message = length_proof(get_command_header(ctx.interaction) + message)
+            return await cache[ctx.channel.id].send(message, **kwargs)
         else:
-            await send_log(f"failed to send command `{get_command_string(ctx.interaction)}` by {ctx.author.name} (404 + no cached ctx to reply)", ctx.bot)
+            await send_log(f"{get_command_header(ctx.interaction)}failed to send command (404 + no cached ctx to reply)", ctx.bot)
     return None
 
 async def send_log(message: str, bot: discord.Client):
@@ -30,6 +30,9 @@ def get_command_string(interaction: discord.Interaction):
     for option in data.get("options", []):
         command_str += f" {option['name']}: {option['value']}"
     return command_str
+
+def get_command_header(interaction: discord.Interaction) -> str:
+    return f'-# {interaction.user.name} used `{get_command_string(interaction)}`\n'
 
 def length_proof(message: str) -> str:
     if len(message) > 2000:

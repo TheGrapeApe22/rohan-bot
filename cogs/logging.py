@@ -4,6 +4,7 @@ from discord.ext import commands
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from utils.reply import reply
+from utils.send import send
 
 timezone = ZoneInfo("America/Los_Angeles")
 
@@ -33,7 +34,7 @@ class Logging(commands.Cog):
         if ctx.interaction is None:
             await ctx.message.add_reaction('🧀')
         else:
-            await ctx.send('🧀')
+            await send(ctx, '🧀')
 
     async def send_log(self, ctx: commands.Context, message, include_hidden):
         if message is None:
@@ -79,7 +80,7 @@ class Logging(commands.Cog):
 
                 await reply(ctx.message, f"-# {path[-14:-4]}\n```{''.join(chunks[0])}```")
                 for chunk in chunks[1:min(6, len(chunks))]: # limit to 6 chunks
-                    await ctx.send(f"```{''.join(chunk)}```")
+                    await send(ctx, f"```{''.join(chunk)}```")
         except FileNotFoundError:
             await reply(ctx.message, f"file '{path}' not found. usage: `.view mm-dd-yyyy` or `.view N` (days ago)")
         except Exception as e:

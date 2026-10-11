@@ -6,6 +6,7 @@ import re
 from utils.soliloquy import construct_abomination
 from utils.seven_bag import seven_bag
 from utils import david_lines
+from utils.send import send
 from pathlib import Path
 import json
 import discord
@@ -45,27 +46,27 @@ class Mao(commands.Cog):
         cards[user_id] += 1
         with open("data/cards.json", "w") as f:
             json.dump(cards, f, indent=4)
-        await ctx.send(f"{reason}{'\n' if reason else ''}{user.mention if ping else user.name} now has {cards[user_id]} card{pluralize(cards[user_id])}.")
+        await send(ctx, f"{reason}{'\n' if reason else ''}{user.mention if ping else user.name} now has {cards[user_id]} card{pluralize(cards[user_id])}.")
     @commands.hybrid_command(help="check how many cards a user has")
     async def get_card_count(self, ctx, user: discord.User, ping: bool = True):
         with open("data/cards.json", "r") as f:
             cards = json.load(f)
         user_id = str(user.id)
         count = cards.get(user_id, 0)
-        await ctx.send(f"{user.mention if ping else user.name} has {count} card{pluralize(count)}.")
+        await send(ctx, f"{user.mention if ping else user.name} has {count} card{pluralize(count)}.")
     @commands.hybrid_command(help="show the card counts for all users")
     async def leaderboard(self, ctx):
         with open("data/cards.json", "r") as f:
             cards = json.load(f)
         if not cards:
-            await ctx.send("(empty)")
+            await send(ctx, "(empty)")
             return
         sorted_cards = sorted(cards.items(), key=lambda x: x[1], reverse=True)
         leaderboard_text = ''
         for user_id, count in sorted_cards:
             user = await self.bot.fetch_user(int(user_id))
             leaderboard_text += f"{user.name}: {count} card{pluralize(count)}\n"
-        await ctx.send(f"# Card Leaderboard\n{leaderboard_text}")
+        await send(ctx, f"# Card Leaderboard\n{leaderboard_text}")
 
     # soliloquy
     @commands.hybrid_command(help="generate a soliloquy from inside jokes/copypastas")
@@ -73,9 +74,9 @@ class Mao(commands.Cog):
         # if ctx.author.id == 335921289900589066: # mason
         #     roll = random.randint(1, 6)
         #     if roll == 6:
-        #         await ctx.send('frick you mason. you rolled a d6 and landed on a 6.')
+        #         await send(ctx, 'frick you mason. you rolled a d6 and landed on a 6.')
         #     else:
-        #         await ctx.send(f'frick you mason. you rolled a d6 and landed on a {roll}. roll a 6 to receive your soliloquy.')
+        #         await send(ctx, f'frick you mason. you rolled a d6 and landed on a {roll}. roll a 6 to receive your soliloquy.')
         #         return
 
         file = None
@@ -84,20 +85,20 @@ class Mao(commands.Cog):
 
         message = construct_abomination(length)
         if len(message) > 1984: # for the memes
-            await ctx.send(f"Message ({len(message)} characters) too long to send. Try a shorter length.")
-        await ctx.send(message, file=file)
+            await send(ctx, f"Message ({len(message)} characters) too long to send. Try a shorter length.")
+        await send(ctx, message, file=file)
 
     @commands.hybrid_command(help="translate a message to a programming language")
     async def translate(self, ctx, message: str, language: Literal['C++ (🧀)', 'Java']):
         if len(message) > 1000:
-            await ctx.send(f"Message ({len(message)} characters) too long.")
+            await send(ctx, f"Message ({len(message)} characters) too long.")
 
         # if ctx.author.id == 767458854249824328: # sharvil
         #     roll = random.randint(1, 6)
         #     if roll == 6:
-        #         await ctx.send('frick you sharvil. you rolled a d6 and landed on a 6.')
+        #         await send(ctx, 'frick you sharvil. you rolled a d6 and landed on a 6.')
         #     else:
-        #         await ctx.send(f'frick you sharvil. you rolled a d6 and landed on a {roll}. roll a 6 to get your message translated.')
+        #         await send(ctx, f'frick you sharvil. you rolled a d6 and landed on a {roll}. roll a 6 to get your message translated.')
         #         return
 
         # sanitize message
@@ -129,21 +130,21 @@ class Mao(commands.Cog):
 
         # translate
         if language == 'C++ (🧀)':
-            await ctx.send(f"{prefix}```cpp\n#include <iostream>\n#define cheese int\n#define Cheese main\n#define cHeese (\n#define CHeese )\n#define chEese {{\n#define ChEese std\n#define cHEese ::\n#define CHEese cout\n#define cheEse <<\n#define CheEse \"{message}\"\n#define cHeEse endl\n#define CHeEse ;\n#define chEEse }}\n\ncheese Cheese cHeese CHeese chEese\n    ChEese cHEese CHEese cheEse CheEse cheEse ChEese cHEese cHeEse CHeEse\nchEEse\n```")
+            await send(ctx, f"{prefix}```cpp\n#include <iostream>\n#define cheese int\n#define Cheese main\n#define cHeese (\n#define CHeese )\n#define chEese {{\n#define ChEese std\n#define cHEese ::\n#define CHEese cout\n#define cheEse <<\n#define CheEse \"{message}\"\n#define cHeEse endl\n#define CHeEse ;\n#define chEEse }}\n\ncheese Cheese cHeese CHeese chEese\n    ChEese cHEese CHEese cheEse CheEse cheEse ChEese cHEese cHeEse CHeEse\nchEEse\n```")
         elif language == 'Java':
-            await ctx.send(f'{prefix}```java\nclass sentence {{\n  public static void main(String[] args) {{\n    System.out.println("{message}");\n  }}\n}}\n```')
+            await send(ctx, f'{prefix}```java\nclass sentence {{\n  public static void main(String[] args) {{\n    System.out.println("{message}");\n  }}\n}}\n```')
 
     @commands.hybrid_command(help="add a line to david guoggins pretrained transformer gpt")
     async def add_gpt_line(self, ctx, line: str, source: str | None = None):
         if len(line) > 1900:
-            await ctx.send(f"aborted; too long.")
+            await send(ctx, f"aborted; too long.")
             return
         result = david_lines.add_line(ctx.author.id, line, source)
         if result == "duplicate":
-            await ctx.send("Line already exists.")
+            await send(ctx, "Line already exists.")
             return
         action = "Added line to" if result == "added" else "Updated source for line in"
-        await ctx.send(
+        await send(ctx, 
             f'{action} Guoggins Pretrained Transformer:\n`{line}`{f"\n-# source: {source}" if source else ""}'
         )
         self.reset_gpt_seven_bag()
@@ -153,13 +154,13 @@ class Mao(commands.Cog):
     async def list_gpt_lines(self, ctx):
         lines = david_lines.all_lines()
         contents = json.dumps(lines, indent=4).encode("utf-8")
-        await ctx.send(file=discord.File(io.BytesIO(contents), filename="david_lines.json"))
+        await send(ctx, file=discord.File(io.BytesIO(contents), filename="david_lines.json"))
 
     @commands.hybrid_command(help="generate/get a line from david guoggins pretrained transformer gpt")
     async def guoggins_pretrained_transformer(self, ctx):
         line_object = david_lines.all_lines()[self.gpt_quote_indexes.get_item()]
         if line_object is None:
-            await ctx.send("No lines found.")
+            await send(ctx, "No lines found.")
             return
         
         line_text = ('\n' + line_object["line"]).replace("\\n", "\n").replace("\n", "\n> ")
@@ -193,7 +194,7 @@ class Mao(commands.Cog):
 
     async def gpt_animation(self, ctx, initial: str, split_output: list, initial_delay: float = 1.0):
         # send initial message, wait a few seconds, then edit the message into output a few words at a time, as if it is outputting token by token
-        message = await ctx.send(initial)
+        message = await send(ctx, initial)
         await asyncio.sleep(initial_delay)
         for i in range(len(split_output)):
             await message.edit(content="".join(split_output[:i+1]))
@@ -201,7 +202,7 @@ class Mao(commands.Cog):
     
     @commands.hybrid_command(help="send abomination image")
     async def abg(self, ctx):
-        await ctx.send(file=discord.File(self.abg_bag.get_item()))
+        await send(ctx, file=discord.File(self.abg_bag.get_item()))
 
 async def setup(bot: commands.Bot):
     david_lines.initialize()

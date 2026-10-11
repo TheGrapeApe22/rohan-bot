@@ -2,7 +2,7 @@ import re
 import subprocess
 import requests
 from discord.ext import commands
-
+from utils.send import send
 class Dungewar(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -24,7 +24,7 @@ class Dungewar(commands.Cog):
     @commands.hybrid_command(help="Get GNU units response")
     async def units(self, ctx, user_from: str, user_to: str=''):
         if len(user_from) > 1000 or len(user_to) > 1000:
-            await ctx.send("Input too long. Please limit to 1000 characters.")
+            await send(ctx, "Input too long. Please limit to 1000 characters.")
             return
         try:
             cmd = ["units", "-t", self.sanitize_unit(user_from)]
@@ -36,13 +36,13 @@ class Dungewar(commands.Cog):
                 text=True,
                 timeout=1.0 
             )
-            await ctx.send(result.stdout)
+            await send(ctx, result.stdout)
         except subprocess.TimeoutExpired:
-            await ctx.send("Calculation timed out >:(")
+            await send(ctx, "Calculation timed out >:(")
         except ValueError:
-            await ctx.send("Nice try. Invalid input.")
+            await send(ctx, "Nice try. Invalid input.")
         except Exception as e:
-            await ctx.send(f"Error doing units: ```{e}```")
+            await send(ctx, f"Error doing units: ```{e}```")
 
      # quote
     @commands.hybrid_command(help="Get dungewar quote of the day")
@@ -67,9 +67,9 @@ class Dungewar(commands.Cog):
             if image:
                 msg += f"\n-# (source: [Dungewar AP](<https://api.dungewar.com/qotd-full>)[I]({image})"
 
-            await ctx.send(msg)
+            await send(ctx, msg)
         except Exception as e:
-            await ctx.send(f"error fetching quote: ```{e}```")
+            await send(ctx, f"error fetching quote: ```{e}```")
     
     @commands.hybrid_command(help="Get oil prices")
     async def oil(self, ctx):
@@ -93,9 +93,9 @@ class Dungewar(commands.Cog):
             if meme_url:
                 content += f"[.]({meme_url})"
 
-            await ctx.send(content)
+            await send(ctx, content)
         except Exception as e:
-            await ctx.send(f"error fetching oil prices: ```{e}```")
+            await send(ctx, f"error fetching oil prices: ```{e}```")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Dungewar(bot))

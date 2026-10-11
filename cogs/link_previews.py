@@ -3,7 +3,7 @@ import os
 from datetime import date, timedelta
 from typing import Literal
 from urllib.parse import urlencode
-
+from utils.send import send
 import discord
 from discord.ext import commands
 
@@ -44,9 +44,9 @@ class LinkPreviews(commands.Cog):
         out += f'[￴]({previewed_url})'
 
         if len(out) > 2000:
-            await ctx.send(f"Message ({len(out)} characters) too long to send.")
+            await send(ctx, f"Message ({len(out)} characters) too long to send.")
         else:
-            await ctx.send(out, allowed_mentions=discord.AllowedMentions.none())
+            await send(ctx, out, allowed_mentions=discord.AllowedMentions.none())
 
     @commands.hybrid_command(help="convert link to rickroll link (note: fails if the url redirects)")
     async def rickroll(self, ctx, link: str, output: Literal['link', 'breaking_news command'] = 'link'):
@@ -67,12 +67,12 @@ class LinkPreviews(commands.Cog):
             if output == 'link':
                 await self.breaking_news(ctx, **params)
             else:
-                await ctx.send(f'```/breaking_news {
+                await send(ctx, f'```/breaking_news {
                     ' '.join([f"{k}: {v}" for k, v in params.items() if v is not None])
                 }```')
 
         except Exception as e:
-            await ctx.send(f"Error: {e}")
+            await send(ctx, f"Error: {e}")
 
     async def fetch(self, url) -> discord.Embed:
         channel = self.bot.get_channel(int(os.getenv('EMBED_CHANNEL_ID')))
@@ -96,7 +96,7 @@ class LinkPreviews(commands.Cog):
     async def embeds(self, ctx, url):
         """Preview the embed for a given URL."""
         embed = await self.fetch(url)
-        await ctx.send(json.dumps(embed.to_dict(), indent=4))
+        await send(ctx, json.dumps(embed.to_dict(), indent=4))
 
     @commands.hybrid_command()
     async def testembed(self, ctx):
@@ -110,7 +110,7 @@ class LinkPreviews(commands.Cog):
                 "name": "provider"
             }
         })
-        await ctx.send(embed=embed)
+        await send(ctx, embed=embed)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(LinkPreviews(bot))
