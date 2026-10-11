@@ -42,7 +42,7 @@ class Core(commands.Cog):
 
     @commands.hybrid_command()
     async def test2(self, ctx):
-        await ctx.send("regular response to test2")
+        await ctx.send("regular response to test2", ephemeral=True)
         self.cheese = ctx
 
     @commands.hybrid_command()
