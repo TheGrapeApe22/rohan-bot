@@ -10,12 +10,14 @@ from discord.ext import commands
 import time
 import json
 
+RICKROLL_URL = "https://discord.com/vanityurl/dotcom/steakpants/flour/flower/index11.html"
 class LinkPreviews(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @commands.hybrid_command(help="generate a funny website preview with a different redirect")
     async def breaking_news(self, ctx, title: str=None, description: str=None, image: str=None, message_text: str=None, provider: str=None, author: str=None, large_image: bool=None, is_video: bool=None, color: int=None, template: Literal['NYTimes', 'AP News', 'Prospector', 'BBC', 'None']='None'):
+        await ctx.defer()
         data = {k: v for k, v in locals().items() if k not in ['ctx', 'self', 'template'] and v is not None}
 
         # load templates
@@ -40,7 +42,7 @@ class LinkPreviews(commands.Cog):
         previewed_url = os.getenv('PREVIEWED_URL').removesuffix('/') + '/?'
         previewed_url += urlencode(data)
         
-        out = f'[{appear}](<https://discord.com/vanityurl/dotcom/steakpants/flour/flower/index11.html>)'
+        out = f'[{appear}](<{RICKROLL_URL}>)'
         out += f'[￴]({previewed_url})'
 
         if len(out) > 2000:
@@ -50,8 +52,13 @@ class LinkPreviews(commands.Cog):
 
     @commands.hybrid_command(help="convert link to rickroll link (note: fails if the url redirects)")
     async def rickroll(self, ctx, link: str, output: Literal['link', 'breaking_news command'] = 'link'):
+        await ctx.defer()
         try:
             embed = await self.fetch(link)
+            if embed is None:
+                await send(ctx, f"[{link.replace('http', 'htt￴p')}](<{RICKROLL_URL}>)")
+                return
+
             params = {
                 'message_text': link,
                 'title': embed.title,
@@ -60,7 +67,7 @@ class LinkPreviews(commands.Cog):
                 'provider': embed.provider.name if embed.provider else None,
                 'author': embed.author.name if embed.author else None,
                 'large_image': embed.type in ['article', 'rich'] or None,
-                'is_video': embed.type == 'video' or None,
+                'is_video': embed.type in ['video', 'image', 'gif'] or None,
                 'color': embed.color
             }
             
