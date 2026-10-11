@@ -1,12 +1,13 @@
 import os
 import discord
+from discord.ext import commands
 from dotenv import load_dotenv
 load_dotenv()
 LOG_CHANNEL_ID = int(os.getenv("LOG_CHANNEL_ID"))
 
 cache = {}
 
-async def send(ctx: discord.Context, message: str, **kwargs):
+async def send(ctx: commands.Context, message: str, **kwargs):
     try:
         out = await ctx.send(length_proof(message), **kwargs)
         cache[ctx.channel.id] = ctx
