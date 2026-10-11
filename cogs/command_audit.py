@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from utils.send import get_command_string, send_log
 
-MY_ID = os.getenv("MY_ID")
+MY_ID = int(os.getenv("MY_ID"))
 
 class CommandAudit(commands.Cog):
     def __init__(self, bot: commands.Bot):

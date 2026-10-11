@@ -43,10 +43,11 @@ async def on_ready():
 # error handling for all cogs
 @bot.event
 async def on_command_error(ctx, error):
+    print(f"Error in command: {error}")
     if isinstance(error, commands.MissingRole):
         await reply(ctx.message, f"heck you {ctx.author.mention} (no perms)", )
     else:
-        await send_log(ctx, f"Error in command `{get_command_string(ctx)}` by {ctx.author.mention}: {error}")
+        await send_log(ctx, f"Error in command `{get_command_string(ctx.interaction)}` by {ctx.author.mention}: {error}")
         raise error
 
 bot.run(

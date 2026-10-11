@@ -22,7 +22,7 @@ class Core(commands.Cog):
     # .say
     @commands.hybrid_command(help="Repeats your message. Usage: `.say <message>`")
     async def say(self, ctx, *, message):
-        await ctx.send(message)
+        await send(ctx, message)
 
     # .ping
     @commands.command(help="Pings the sender after 3 seconds. Usage: `.ping`")
@@ -50,11 +50,7 @@ class Core(commands.Cog):
 
     @commands.hybrid_command()
     async def test3(self, ctx):
-        print(ctx.channel.id)
         await send(ctx, "regular response to test3")
-        print(ctx)
-        print(ctx.channel.id)
-        print(ctx.interaction)
 
     @commands.hybrid_command()
     async def test4(self, ctx):
