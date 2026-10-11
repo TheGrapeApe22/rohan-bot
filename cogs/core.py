@@ -5,6 +5,8 @@ from discord.ext import commands
 from utils.reply import reply
 import asyncio
 
+from utils.send import send
+
 class Core(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -39,23 +41,25 @@ class Core(commands.Cog):
     @commands.hybrid_command()
     async def test1(self, ctx):
         await ctx.defer()
-        await ctx.send("cheese")
+        await send(ctx, "cheese")
 
     @commands.hybrid_command()
     async def test2(self, ctx):
-        await ctx.send("regular response to test2", ephemeral=True)
+        await send(ctx, "regular response to test2", ephemeral=True)
         self.cheese = ctx
 
     @commands.hybrid_command()
     async def test3(self, ctx):
         print(ctx.channel.id)
-        try:
-            await ctx.send("regular response to test3")
-        except Exception as e:
-            pass
-        await self.cheese.send('alternate response to test3')
+        await send(ctx, "regular response to test3")
         print(ctx)
         print(ctx.channel.id)
+        print(ctx.interaction)
+
+    @commands.hybrid_command()
+    async def test4(self, ctx):
+        await asyncio.sleep(3)
+        await self.test3(ctx)
 
     # send heck you to non-grapes
     @commands.Cog.listener()
