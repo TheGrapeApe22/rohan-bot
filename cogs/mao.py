@@ -25,12 +25,12 @@ class Mao(commands.Cog):
 
         self.reset_gpt_seven_bag()
 
-        abgs = [str(f) for f in Path('assets/abg').iterdir() if f.is_file()]
-        for i in range(len(abgs)):
-            abg = abgs[i]
-            if abg[-5] not in ['1', '2']:
-                abgs.append(abg)
-        self.abg_bag = seven_bag(abgs)
+        # abgs = [str(f) for f in Path('assets/abg').iterdir() if f.is_file()]
+        # for i in range(len(abgs)):
+        #     abg = abgs[i]
+        #     if abg[-5] not in ['1', '2']:
+        #         abgs.append(abg)
+        # self.abg_bag = seven_bag(abgs)
 
         with open('data/niranjan_lines.txt', 'r') as f:
             self.niranjan_lines = seven_bag(f.readlines())
@@ -202,7 +202,20 @@ class Mao(commands.Cog):
     
     @commands.hybrid_command(help="send abomination image")
     async def abg(self, ctx):
-        await send(ctx, file=discord.File(self.abg_bag.get_item()))
+        # anuraag_mask.png  anuraag_normal_face.png  david_blurry_demonic.jpg  diggyhole.png  lord_of_feet.png  niranjan_1.png  niranjan_2.png
+        relative_probabilities = {
+            'diggyhole.png': 0.8,
+            'lord_of_feet.png': 0.1,
+            'anuraag_mask.png': 0.05,
+            'anuraag_normal_face.png': 0.05,
+            'david_blurry_demonic.jpg': 1,
+            'niranjan_1.png': 0.5,
+            'niranjan_2.png': 0.5
+        }
+        # Use the relative probabilities to create a weighted selection
+        selected_image = random.choices(list(relative_probabilities.keys()), weights=list(relative_probabilities.values()))[0]
+        
+        await send(ctx, file=discord.File(f'assets/abg/{selected_image}'))
 
 async def setup(bot: commands.Bot):
     david_lines.initialize()
