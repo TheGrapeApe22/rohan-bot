@@ -38,6 +38,7 @@ class Core(commands.Cog):
 
     @commands.hybrid_command()
     async def test1(self, ctx):
+        await ctx.defer()
         await ctx.send("cheese")
 
     @commands.hybrid_command()
