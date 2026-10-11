@@ -53,6 +53,8 @@ class Core(commands.Cog):
         except Exception as e:
             pass
         await self.cheese.send('alternate response to test3')
+        print(ctx)
+        print(ctx.channel.id)
 
     # send heck you to non-grapes
     @commands.Cog.listener()
