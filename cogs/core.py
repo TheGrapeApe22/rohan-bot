@@ -47,8 +47,10 @@ class Core(commands.Cog):
 
     @commands.hybrid_command()
     async def test3(self, ctx):
-        await ctx.send("regular response to test3")
-        await self.cheese.send('alternate response to test3')
+        try:
+            await ctx.send("regular response to test3")
+        except Exception as e:
+            await self.cheese.send('alternate response to test3')
 
     # send heck you to non-grapes
     @commands.Cog.listener()
