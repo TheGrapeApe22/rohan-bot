@@ -7,15 +7,21 @@ LOG_CHANNEL_ID = int(os.getenv("LOG_CHANNEL_ID"))
 
 cache = {}
 
-async def send(ctx: commands.Context, message: str, **kwargs):
+async def send(ctx: commands.Context, message: str=None, **kwargs):
     try:
-        out = await ctx.send(length_proof(message), **kwargs)
+        if message is not None:
+            out = await ctx.send(length_proof(message), **kwargs)
+        else:
+            out = await ctx.send(**kwargs)
         cache[ctx.channel.id] = ctx
         return out
     except discord.errors.NotFound:
         if ctx.channel.id in cache:
-            message = length_proof(get_command_header(ctx.interaction) + message)
-            return await cache[ctx.channel.id].send(message, **kwargs)
+            if message is not None:
+                message = length_proof(get_command_header(ctx.interaction) + message)
+                return await cache[ctx.channel.id].send(message, **kwargs)
+            else:
+                return await cache[ctx.channel.id].send(**kwargs)
         else:
             await send_log(f"{get_command_header(ctx.interaction)}failed to send command (404 + no cached ctx to reply)", ctx.bot)
     return None
