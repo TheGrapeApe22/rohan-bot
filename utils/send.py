@@ -11,13 +11,10 @@ async def send(ctx: discord.Context, message: str, **kwargs):
         if ctx.channel.id in cache:
             message = f'-# {ctx.user.name} used command `{get_command_string(ctx)}`\n{message}'
             out = await cache[ctx.channel.id].send(length_proof(message), **kwargs)
-        # else:
-        #     print
-    return out
-
+            return out
+    return None
 
 LOG_CHANNEL_ID = os.getenv("LOG_CHANNEL_ID")
-
 async def send_log(message: str, bot: discord.Client):
     log_channel = bot.get_channel(LOG_CHANNEL_ID)
     if log_channel:

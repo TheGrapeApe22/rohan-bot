@@ -4,6 +4,9 @@ import logging
 from dotenv import load_dotenv
 import os
 
+from utils.reply import reply
+from utils.send import get_command_string, send_log
+
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
 intents = discord.Intents.default()
@@ -36,6 +39,15 @@ bot = MyBot()
 @bot.event
 async def on_ready():
     print(f"{bot.user.name} is now running.")
+
+# error handling for all cogs
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.MissingRole):
+        await reply(ctx.message, f"heck you {ctx.author.mention} (no perms)", )
+    else:
+        await send_log(ctx, f"Error in command `{get_command_string(ctx)}` by {ctx.author.mention}: {error}")
+        raise error
 
 bot.run(
     token,

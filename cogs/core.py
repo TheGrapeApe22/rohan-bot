@@ -5,7 +5,7 @@ from discord.ext import commands
 from utils.reply import reply
 import asyncio
 
-from utils.send import send
+from utils.send import get_command_string, send, send_log
 
 class Core(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -60,14 +60,6 @@ class Core(commands.Cog):
     async def test4(self, ctx):
         await asyncio.sleep(3)
         await self.test3(ctx)
-
-    # send heck you to non-grapes
-    @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
-        if isinstance(error, commands.MissingRole):
-            await reply(ctx.message, f"heck you {ctx.author.mention} (no perms)", )
-        else:
-            raise error
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Core(bot))
