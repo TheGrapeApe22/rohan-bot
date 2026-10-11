@@ -1,3 +1,5 @@
+import traceback
+
 import discord
 from discord.ext import commands
 import logging
@@ -5,7 +7,7 @@ from dotenv import load_dotenv
 import os
 
 from utils.reply import reply
-from utils.send import get_command_string, send_log
+from utils.send import get_command_header, get_command_string, send_log
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
@@ -43,11 +45,11 @@ async def on_ready():
 # error handling for all cogs
 @bot.event
 async def on_command_error(ctx, error):
-    print(f"Error in command: {error}")
     if isinstance(error, commands.MissingRole):
         await reply(ctx.message, f"heck you {ctx.author.mention} (no perms)", )
     else:
-        await send_log(ctx, f"Error in command `{get_command_string(ctx.interaction)}` by {ctx.author.mention}: {error}")
+        message = f"{get_command_header(ctx.interaction)}Error: ```{''.join(traceback.format_exception(type(error), error, error.__traceback__))}```"
+        await send_log(message, bot)
         raise error
 
 bot.run(

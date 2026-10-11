@@ -22,8 +22,10 @@ async def send(ctx: commands.Context, message: str, **kwargs):
 
 async def send_log(message: str, bot: discord.Client):
     log_channel = bot.get_channel(LOG_CHANNEL_ID)
-    if log_channel:
+    try:
         await log_channel.send(length_proof(message))
+    except Exception:
+        print(f"Error in command: {message}")
 
 def get_command_string(interaction: discord.Interaction):
     data = interaction.data
@@ -39,3 +41,7 @@ def length_proof(message: str) -> str:
     if len(message) > 2000:
         return f'-# shortening message to 2000 characters\n{message}'[:2000]
     return message
+
+async def defer(ctx: commands.Context):
+    if not ctx.interaction.response.is_done():
+        await ctx.defer()

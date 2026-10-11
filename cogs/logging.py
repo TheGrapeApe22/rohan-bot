@@ -36,7 +36,7 @@ class Logging(commands.Cog):
         else:
             await send(ctx, '🧀')
 
-    async def send_log(self, ctx: commands.Context, message, include_hidden):
+    async def send_logs(self, ctx: commands.Context, message, include_hidden):
         if message is None:
             path = self.current_log_path()
         else:
@@ -89,13 +89,13 @@ class Logging(commands.Cog):
     # .view
     @commands.command(help="Views a log file. usage: `.view mm-dd-yyyy` or `.view N` (days ago)")
     async def view(self, ctx, *, message=None):
-        await self.send_log(ctx, message, include_hidden=False)
+        await self.send_logs(ctx, message, include_hidden=False)
 
     # .view2
     @commands.command()
     @commands.has_role('view2er')
     async def view2(self, ctx, *, message=None):
-        await self.send_log(ctx, message, include_hidden=True)
+        await self.send_logs(ctx, message, include_hidden=True)
 
 
 async def setup(bot: commands.Bot):
