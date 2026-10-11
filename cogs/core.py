@@ -37,25 +37,9 @@ class Core(commands.Cog):
         server_list = "\n".join(guild_names)
         await send(ctx, f"I am in the following {len(self.bot.guilds)} servers:\n{server_list}")
 
-
     @commands.hybrid_command()
-    async def test1(self, ctx):
-        await ctx.defer()
-        await send(ctx, "cheese")
-
-    @commands.hybrid_command()
-    async def test2(self, ctx):
-        await send(ctx, "regular response to test2", ephemeral=True)
-        self.cheese = ctx
-
-    @commands.hybrid_command()
-    async def test3(self, ctx):
-        await send(ctx, "regular response to test3")
-
-    @commands.hybrid_command()
-    async def test4(self, ctx):
-        await asyncio.sleep(3)
-        await self.test3(ctx)
+    async def cheese(self, ctx):
+        await send(ctx, "cheese", ephemeral=True)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Core(bot))
