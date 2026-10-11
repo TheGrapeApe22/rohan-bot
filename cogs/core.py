@@ -42,17 +42,13 @@ class Core(commands.Cog):
 
     @commands.hybrid_command()
     async def test2(self, ctx):
-        await ctx.send("cheese")
-        # await asyncio.sleep(5)
-        await ctx.send("cheese2")
-        # await ctx.defer()
+        await ctx.send("regular response to test2")
         self.cheese = ctx
-        print(f"setup: {self.cheese}")
 
     @commands.hybrid_command()
     async def test3(self, ctx):
-        print(f"retrieved ctx: {self.cheese}")
-        await self.cheese.send('cheese3')
+        await ctx.send("regular response to test3")
+        await self.cheese.send('alternate response to test3')
 
     # send heck you to non-grapes
     @commands.Cog.listener()
