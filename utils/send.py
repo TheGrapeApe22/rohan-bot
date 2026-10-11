@@ -13,6 +13,8 @@ async def send(ctx: commands.Context, message: str=None, **kwargs):
             out = await ctx.send(length_proof(message), **kwargs)
         else:
             out = await ctx.send(**kwargs)
+        if (ctx.interaction.is_expired()):
+            send_log(f"weird bug: interaction is expired after message sent")
         cache[ctx.channel.id] = ctx
         return out
     except discord.errors.NotFound:
