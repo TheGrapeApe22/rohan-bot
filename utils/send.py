@@ -19,11 +19,11 @@ async def send(ctx: commands.Context, message: str=None, **kwargs):
         return out
     except discord.errors.NotFound:
         if ctx.channel.id in cache:
-            if message is not None:
-                message = length_proof(get_command_header(ctx.interaction) + message)
-                return await cache[ctx.channel.id].send(message, **kwargs)
-            else:
-                return await cache[ctx.channel.id].send(**kwargs)
+            if message is None:
+                message = ''
+            message = get_command_header(ctx.interaction) + message
+            message = length_proof(message)
+            return await cache[ctx.channel.id].send(length_proof(message), **kwargs)
         else:
             await send_log(f"{get_command_header(ctx.interaction)}failed to send command (404 + no cached ctx to reply)", ctx.bot)
     return None
