@@ -202,15 +202,17 @@ class Mao(commands.Cog):
     
     @commands.hybrid_command(help="send abomination image")
     async def abg(self, ctx):
-        # anuraag_mask.png  anuraag_normal_face.png  david_blurry_demonic.jpg  diggyhole.png  lord_of_feet.png  niranjan_1.png  niranjan_2.png
+        # anuraag_mask.png, anuraag_normal_face.png, david_blurry_demonic.jpg, diggyhole.png, lord_of_feet.png, niranjan_abomination.png, niranjan_cutout.png, rohan.png
+
         relative_probabilities = {
             'diggyhole.png': 0.8,
             'lord_of_feet.png': 0.1,
             'anuraag_mask.png': 0.05,
             'anuraag_normal_face.png': 0.05,
             'david_blurry_demonic.jpg': 1,
-            'niranjan_1.png': 0.5,
-            'niranjan_2.png': 0.5
+            'niranjan_abomination.png': 0.5,
+            'niranjan_cutout.png': 0.5,
+            'rohan.png': 1
         }
         # Use the relative probabilities to create a weighted selection
         selected_image = random.choices(list(relative_probabilities.keys()), weights=list(relative_probabilities.values()))[0]
