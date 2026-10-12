@@ -13,8 +13,6 @@ async def send(ctx: commands.Context, message: str=None, **kwargs):
             out = await ctx.send(length_proof(message), **kwargs)
         else:
             out = await ctx.send(**kwargs)
-        if (ctx.interaction.is_expired()):
-            send_log(f"weird bug: interaction is expired after message sent")
         cache[ctx.channel.id] = ctx
         return out
     except discord.errors.NotFound:
@@ -23,9 +21,12 @@ async def send(ctx: commands.Context, message: str=None, **kwargs):
                 message = ''
             message = get_command_header(ctx.interaction) + message
             message = length_proof(message)
-            return await cache[ctx.channel.id].send(length_proof(message), **kwargs)
+            try:
+                return await cache[ctx.channel.id].send(length_proof(message), **kwargs)
+            except discord.errors.NotFound:
+                await send_log(f"{get_command_header(ctx.interaction)}cached ctx is expired.\nis_expired: {ctx.interaction.is_expired()}, expires_at: {ctx.interaction.expires_at}", ctx.bot)
         else:
-            await send_log(f"{get_command_header(ctx.interaction)}failed to send command (404 + no cached ctx to reply)", ctx.bot)
+            await send_log(f"{get_command_header(ctx.interaction)}no cached ctx to send command", ctx.bot)
     return None
 
 async def send_log(message: str, bot: discord.Client):
@@ -51,5 +52,9 @@ def length_proof(message: str) -> str:
     return message
 
 async def defer(ctx: commands.Context):
-    if not ctx.interaction.response.is_done():
+    if ctx.interaction.response.is_done() or ctx.interaction.is_expired():
+        return
+    try:
         await ctx.defer()
+    except discord.errors.NotFound:
+        pass

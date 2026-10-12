@@ -41,5 +41,25 @@ class Core(commands.Cog):
     async def cheese(self, ctx):
         await send(ctx, "cheese", ephemeral=True)
 
+    @commands.hybrid_command()
+    async def test(self, ctx):
+        print(ctx.channel)
+        msg = await send(ctx, "cheese", ephemeral=True)
+
+        try:
+            await ctx.channel.send("This is a test message.", reference=msg)
+        except Exception as e:
+            print(f"Error sending message: {e}")
+
+        try:
+            await msg.reply("This is a test reply.")
+        except Exception as e:
+            print(f"Error sending message: {e}")
+
+    @commands.hybrid_command()
+    async def delay5(self, ctx):
+        await asyncio.sleep(5)
+        await send(ctx, "5 seconds have passed.")
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(Core(bot))
