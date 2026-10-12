@@ -8,6 +8,7 @@ LOG_CHANNEL_ID = int(os.getenv("LOG_CHANNEL_ID"))
 cache = {}
 
 async def send(ctx: commands.Context, message: str=None, **kwargs):
+    await defer(ctx, ephemeral=kwargs.get('ephemeral', False))
     try:
         if message is not None:
             out = await ctx.send(length_proof(message), **kwargs)
@@ -51,10 +52,10 @@ def length_proof(message: str) -> str:
         return f'-# shortening message to 2000 characters\n{message}'[:2000]
     return message
 
-async def defer(ctx: commands.Context):
+async def defer(ctx: commands.Context, ephemeral: bool = False):
     if ctx.interaction.response.is_done() or ctx.interaction.is_expired():
         return
     try:
-        await ctx.defer()
+        await ctx.defer(ephemeral=ephemeral)
     except discord.errors.NotFound:
         pass

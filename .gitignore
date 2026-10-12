@@ -3,16 +3,7 @@ venv
 .venv
 **/__pycache__
 
-save_logs.sh
-
 logs/*
 !logs/test.txt
-cards.json
 
-handler.py
-loglog
 test.py
-
-data/*
-!data/delete_line.sh
-!data/article_templates.json
