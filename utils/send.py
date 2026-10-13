@@ -30,10 +30,10 @@ async def send(ctx: commands.Context, message: str=None, **kwargs):
             await send_log(f"{get_command_header(ctx.interaction)}no cached ctx to send command", ctx.bot)
     return None
 
-async def send_log(message: str, bot: discord.Client):
+async def send_log(message: str, bot: discord.Client, file: discord.File = None):
     log_channel = bot.get_channel(LOG_CHANNEL_ID)
     try:
-        await log_channel.send(length_proof(message))
+        await log_channel.send(length_proof(message), file=file)
     except Exception:
         print(f"Error in command: {message}")
 

@@ -1,3 +1,4 @@
+from datetime import datetime
 import traceback
 
 import discord
@@ -49,7 +50,10 @@ async def on_command_error(ctx, error):
         await reply(ctx.message, f"heck you {ctx.author.mention} (no perms)", )
     else:
         message = f"{get_command_header(ctx.interaction)}Error: ```{''.join(traceback.format_exception(type(error), error, error.__traceback__))}```"
-        await send_log(message, bot)
+        file_path = f"data/tracebacks/{datetime.now().strftime("%Y_%m_%d_%H_%M_%S")}.txt"
+        with open(file_path, "w") as f:
+            f.write(message)
+        await send_log('', bot, file=discord.File(file_path))
         raise error
 
 bot.run(
