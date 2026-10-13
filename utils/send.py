@@ -24,7 +24,7 @@ async def send(ctx: commands.Context, message: str=None, **kwargs):
             message = length_proof(message)
             try:
                 return await cache[ctx.channel.id].send(length_proof(message), **kwargs)
-            except discord.errors.NotFound:
+            except (discord.errors.NotFound, discord.errors.Forbidden):
                 await send_log(f"{get_command_header(ctx.interaction)}cached ctx is expired.\nis_expired: {ctx.interaction.is_expired()}, expires_at: {ctx.interaction.expires_at}", ctx.bot)
         else:
             await send_log(f"{get_command_header(ctx.interaction)}no cached ctx to send command", ctx.bot)
