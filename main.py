@@ -49,11 +49,11 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRole):
         await reply(ctx.message, f"heck you {ctx.author.mention} (no perms)", )
     else:
-        message = f"{get_command_header(ctx.interaction)}Error: ```{''.join(traceback.format_exception(type(error), error, error.__traceback__))}```"
+        # write the error to a file and send it
         file_path = f"data/tracebacks/{datetime.now().strftime("%Y_%m_%d_%H_%M_%S")}.txt"
         with open(file_path, "w") as f:
-            f.write(message)
-        await send_log('', bot, file=discord.File(file_path))
+            f.write(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
+        await send_log(f'{get_command_header(ctx.interaction)}Error: ', bot, file=discord.File(file_path))
         raise error
 
 bot.run(
