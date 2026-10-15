@@ -9,6 +9,10 @@ class Gifs(commands.Cog):
     async def david_reaction(self, ctx):
         await send(ctx, file=discord.File("assets/gifs/david_reaction.gif"))
 
+    @commands.hybrid_command(help="david dancing reaction gif")
+    async def dancing(self, ctx):
+        await send(ctx, file=discord.File("assets/gifs/dancing.gif"))
+
     @commands.hybrid_command(help="david explaining gif")
     async def david_explaining(self, ctx):
         await send(ctx, file=discord.File("assets/gifs/david_explaining.gif"))
