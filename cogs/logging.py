@@ -24,12 +24,10 @@ class Logging(commands.Cog):
 
     # .log
     @commands.hybrid_command(help="Logs an event with a timestamp. Usage: `.log <message>`")
-    @commands.has_role('grape')
+    # @commands.has_role('grape')
     async def log(self, ctx, *, message):
         timestamp = ctx.message.created_at.astimezone(timezone).strftime('%I:%M:%S %p')
         with open(self.current_log_path(), "a") as f:
-            if any(role.name == "invisible logs" for role in ctx.author.roles):
-                f.write('*')
             f.write(f'{timestamp} ({ctx.author.name}): {message}\n')
         if ctx.interaction is None:
             await ctx.message.add_reaction('🧀')
@@ -50,7 +48,7 @@ class Logging(commands.Cog):
         # prevent directory traversal attack
         logs_dir = os.path.realpath('logs')
         if os.path.commonpath([path, logs_dir]) != os.path.commonpath([logs_dir]):
-            await reply(ctx.message, "heck you (access denied)")
+            await send(ctx, "heck you (access denied)")
             return
         try:
             with open(path, "r") as log_file:
@@ -78,24 +76,22 @@ class Logging(commands.Cog):
                 if not chunks:
                     chunks = [["(no visible log lines)\n"]]
 
-                await reply(ctx.message, f"-# {path[-14:-4]}\n```{''.join(chunks[0])}```")
+                await send(ctx, f"-# {path[-14:-4]}\n```{''.join(chunks[0])}```")
                 for chunk in chunks[1:min(6, len(chunks))]: # limit to 6 chunks
                     await send(ctx, f"```{''.join(chunk)}```")
         except FileNotFoundError:
-            await reply(ctx.message, f"file '{path}' not found. usage: `.view mm-dd-yyyy` or `.view N` (days ago)")
-        except Exception as e:
-            await reply(ctx.message, f"error: {e}")
+            await send(ctx, f"no logs on this date. usage: `view mm-dd-yyyy` or `view N` (days ago)")
 
     # .view
-    @commands.command(help="Views a log file. usage: `.view mm-dd-yyyy` or `.view N` (days ago)")
-    async def view(self, ctx, *, message=None):
-        await self.send_logs(ctx, message, include_hidden=False)
+    @commands.hybrid_command(help="Views a log file. usage: `view mm-dd-yyyy` or `view N` (days ago)")
+    async def view(self, ctx, *, log_file=None):
+        await self.send_logs(ctx, log_file, include_hidden=False)
 
     # .view2
-    @commands.command()
-    @commands.has_role('view2er')
-    async def view2(self, ctx, *, message=None):
-        await self.send_logs(ctx, message, include_hidden=True)
+    # @commands.command()
+    # @commands.has_role('view2er')
+    # async def view2(self, ctx, *, message=None):
+    #     await self.send_logs(ctx, message, include_hidden=True)
 
 
 async def setup(bot: commands.Bot):
