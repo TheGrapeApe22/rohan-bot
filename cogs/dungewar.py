@@ -2,7 +2,7 @@ import re
 import subprocess
 import requests
 from discord.ext import commands
-from utils.send import send
+from utils.send import send, defer
 class Dungewar(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -48,6 +48,7 @@ class Dungewar(commands.Cog):
     @commands.hybrid_command(help="Get dungewar quote of the day")
     async def quote(self, ctx):
         try:
+            await defer(ctx)
             res = requests.get("https://api.dungewar.com/qotd-full").json()
             quote_text = res.get("quote", "").strip()
             author = res.get("author", "").strip()
@@ -74,6 +75,7 @@ class Dungewar(commands.Cog):
     @commands.hybrid_command(help="Get oil prices")
     async def oil(self, ctx):
         try:
+            await defer(ctx)
             res = requests.get("https://api.dungewar.com/oil-full").json().get('data', {})
             price = res.get('price')
             change = res.get('changes', {}).get('24h', {}).get('percent')
