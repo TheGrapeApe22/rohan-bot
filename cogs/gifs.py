@@ -4,6 +4,10 @@ from utils.send import send
 class Gifs(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+    
+    @commands.hybrid_command(help="frick you heck anuraag middle finger")
+    async def frick_you(self, ctx):
+        await send(ctx, file=discord.File("assets/gifs/frick_you.png"))
 
     @commands.hybrid_command(help="david reaction gif")
     async def david_reaction(self, ctx):
