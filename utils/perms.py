@@ -12,5 +12,5 @@ def get_whitelist_users():
 
 async def enforce_whitelist(ctx, user_id):
     if user_id not in get_whitelist_users():
-        await send(ctx, f"You do not have permission to use this command. Feel free to DM <@{MY_ID}> for access.")
+        await send(ctx, f"You do not have permission to use this command. Feel free to DM <@{MY_ID}> to ask for access.")
         raise PermissionError("User is not on the whitelist.")
