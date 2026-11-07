@@ -1,8 +1,8 @@
-import discord
 import os
 from discord.ext import commands
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
+from utils.perms import enforce_whitelist
 from utils.reply import reply
 from utils.send import send
 
@@ -85,6 +85,7 @@ class Logging(commands.Cog):
     # .view
     @commands.hybrid_command(help="Views a log file. usage: `view mm-dd-yyyy` or `view N` (days ago)")
     async def view(self, ctx, *, log_file=None):
+        await enforce_whitelist(ctx, ctx.author.id)
         await self.send_logs(ctx, log_file, include_hidden=False)
 
     # .view2

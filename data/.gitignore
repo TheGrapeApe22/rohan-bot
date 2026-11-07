@@ -4,3 +4,4 @@ discord.log
 ignore_channels.txt
 niranjan_lines.txt
 tracebacks/
+whitelist_users.txt

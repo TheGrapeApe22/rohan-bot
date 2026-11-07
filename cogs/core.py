@@ -1,11 +1,7 @@
-import time
-
-import discord
 from discord.ext import commands
 from utils.reply import reply
 import asyncio
-
-from utils.send import get_command_string, send, send_log
+from utils.send import send
 
 class Core(commands.Cog):
     def __init__(self, bot: commands.Bot):
