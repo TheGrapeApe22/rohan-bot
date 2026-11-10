@@ -53,6 +53,8 @@ def length_proof(message: str) -> str:
     return message
 
 async def defer(ctx: commands.Context, ephemeral: bool = False):
+    if ctx.interaction is None:
+        return
     if ctx.interaction.response.is_done() or ctx.interaction.is_expired():
         return
     try:
