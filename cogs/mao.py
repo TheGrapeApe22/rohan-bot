@@ -206,7 +206,7 @@ class Mao(commands.Cog):
             # await asyncio.sleep(0.5)
     
     @commands.hybrid_command(help="send abomination image")
-    async def abg(self, ctx):
+    async def abg(self, ctx, image: Literal['diggyhole.png', 'lord_of_feet.png', 'anuraag_mask.png', 'anuraag_normal_face.png', 'david_blurry_demonic.jpg', 'niranjan_abomination.png', 'niranjan_cutout.png', 'rohan.png', 'mason_demonic.jpg', 'random'] = 'random'):
         await enforce_whitelist(ctx, ctx.author.id)
         # anuraag_mask.png, anuraag_normal_face.png, david_blurry_demonic.jpg, diggyhole.png, lord_of_feet.png, niranjan_abomination.png, niranjan_cutout.png, rohan.png
 
@@ -218,10 +218,14 @@ class Mao(commands.Cog):
             'david_blurry_demonic.jpg': 1,
             'niranjan_abomination.png': 0.5,
             'niranjan_cutout.png': 0.5,
-            'rohan.png': 1
+            'rohan.png': 1,
+            'mason_demonic.jpg': 1
         }
         # Use the relative probabilities to create a weighted selection
-        selected_image = random.choices(list(relative_probabilities.keys()), weights=list(relative_probabilities.values()))[0]
+        if image == 'random':
+            selected_image = random.choices(list(relative_probabilities.keys()), weights=list(relative_probabilities.values()))[0]
+        else:
+            selected_image = image
         
         await send(ctx, file=discord.File(f'assets/abg/{selected_image}'))
 

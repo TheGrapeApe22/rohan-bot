@@ -48,6 +48,8 @@ async def on_ready():
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRole):
         await reply(ctx.message, f"heck you {ctx.author.mention} (no perms)", )
+    elif isinstance(error, PermissionError):
+        await send_log(f'{get_command_header(ctx.interaction)}PermissionError: {error}', bot)
     else:
         # write the error to a file and send it
         file_path = f"data/tracebacks/{datetime.now().strftime("%Y_%m_%d_%H_%M_%S")}.txt"
