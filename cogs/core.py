@@ -15,18 +15,15 @@ class Core(commands.Cog):
             await message.reply(f"heck you")
         # await self.bot.process_commands(message)
 
-    # .say
     @commands.hybrid_command(name="say", help="Repeats your message. Usage: `.say <message>`")
     async def say(self, ctx, *, message):
         await send(ctx, message)
 
-    # .ping
     @commands.command(name="ping", help="Pings the sender after 3 seconds. Usage: `.ping`")
     async def ping(self, ctx):
         await asyncio.sleep(3)
         await send(ctx, ctx.author.mention)
 
-    # servers
     @commands.command(name="servers", help="Lists all servers the bot is in. Usage: `.servers`")
     async def servers(self, ctx):
         guild_names = [guild.name for guild in self.bot.guilds]

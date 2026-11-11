@@ -10,10 +10,9 @@ LOG_CHANNEL_ID = int(os.getenv("LOG_CHANNEL_ID"))
 ctx_cache = {}
 
 async def _reply(ctx: commands.Context, **kwargs):
-    if ctx.message:
-        return await ctx.message.reply(**kwargs, mention_author=False)
-    else:
+    if ctx.interaction:
         return await ctx.send(**kwargs)
+    return await ctx.message.reply(**kwargs, mention_author=False)
 
 async def send(ctx: commands.Context, message: str=None, **kwargs):
     await defer(ctx, ephemeral=kwargs.get('ephemeral', False))
