@@ -12,8 +12,7 @@ class CommandAudit(commands.Cog):
 
     @staticmethod
     def _listed_channel_ids() -> set[int]:
-        with paths.IGNORE_CHANNELS.open("r", encoding="utf-8") as f:
-            lines = f.readlines()
+        lines = paths.IGNORE_CHANNELS.read_text(encoding="utf-8").splitlines()
         return [int(line.strip()) for line in lines if line.strip() and not line.startswith("#")]
 
     async def _should_send_log(self, channel, author, guild) -> bool:

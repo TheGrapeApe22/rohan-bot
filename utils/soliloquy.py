@@ -3,10 +3,8 @@ import re
 from utils.seven_bag import seven_bag
 from utils import file_paths as paths
 
-with paths.SENTENCES.open() as f:
-    sentences = seven_bag([s for s in f.read().splitlines() if s])
-with paths.NOUNS.open() as f:
-    nouns = seven_bag(f.read().splitlines())
+sentences = seven_bag([s for s in paths.SENTENCES.read_text().splitlines() if s])
+nouns = seven_bag(paths.NOUNS.read_text().splitlines())
 
 # replaces [noun] with random noun
 def fill_sentence(sentence: str):

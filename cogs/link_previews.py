@@ -22,8 +22,7 @@ class LinkPreviews(commands.Cog):
         data = {k: v for k, v in locals().items() if k not in ['ctx', 'self', 'template'] and v is not None}
 
         # load templates
-        with paths.ARTICLE_TEMPLATES.open('r') as f:
-            templates = json.load(f)        
+        templates = json.loads(paths.ARTICLE_TEMPLATES.read_text())
         for k, v in templates[template].items():
             if k not in data:
                 data[k] = v

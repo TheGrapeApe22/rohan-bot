@@ -7,8 +7,7 @@ load_dotenv(paths.ENV)
 MY_ID = os.getenv("MY_ID")
 
 def get_whitelist_users():
-    with paths.WHITELIST_USERS.open("r", encoding="utf-8") as f:
-        lines = f.readlines()
+    lines = paths.WHITELIST_USERS.read_text(encoding="utf-8").splitlines()
     return [int(line.strip()) for line in lines if line.strip() and not line.startswith("#")]
 
 async def enforce_whitelist(ctx):

@@ -51,34 +51,33 @@ class Logging(commands.Cog):
             await send(ctx, "heck you (access denied)")
             return
         try:
-            with path.open("r") as log_file:
-                lines = log_file.readlines()
-                if not include_hidden:
-                    lines = [line for line in lines if not line.startswith('*')]
+            lines = path.read_text().splitlines(keepends=True)
+            if not include_hidden:
+                lines = [line for line in lines if not line.startswith('*')]
 
-                chunks = []
-                current_chunk = []
-                current_len = 0
-                max_chunk_len = 1500
+            chunks = []
+            current_chunk = []
+            current_len = 0
+            max_chunk_len = 1500
 
-                for line in lines:
-                    line_len = len(line)
-                    if current_chunk and (current_len + line_len > max_chunk_len):
-                        chunks.append(current_chunk)
-                        current_chunk = []
-                        current_len = 0
-                    current_chunk.append(line)
-                    current_len += line_len
-
-                if current_chunk:
+            for line in lines:
+                line_len = len(line)
+                if current_chunk and (current_len + line_len > max_chunk_len):
                     chunks.append(current_chunk)
+                    current_chunk = []
+                    current_len = 0
+                current_chunk.append(line)
+                current_len += line_len
 
-                if not chunks:
-                    chunks = [["(no visible log lines)\n"]]
+            if current_chunk:
+                chunks.append(current_chunk)
 
-                await send(ctx, f"-# {path.stem}\n```{''.join(chunks[0])}```")
-                for chunk in chunks[1:min(6, len(chunks))]: # limit to 6 chunks
-                    await send(ctx, f"```{''.join(chunk)}```")
+            if not chunks:
+                chunks = [["(no visible log lines)\n"]]
+
+            await send(ctx, f"-# {path.stem}\n```{''.join(chunks[0])}```")
+            for chunk in chunks[1:min(6, len(chunks))]: # limit to 6 chunks
+                await send(ctx, f"```{''.join(chunk)}```")
         except FileNotFoundError:
             await send(ctx, f"no logs on this date. usage: `view mm-dd-yyyy` or `view N` (days ago)")
 

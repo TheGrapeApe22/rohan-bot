@@ -25,32 +25,27 @@ class Mao(commands.Cog):
 
         self.reset_gpt_seven_bag()
 
-        with paths.NIRANJAN_LINES.open('r') as f:
-            self.niranjan_lines = seven_bag(f.readlines())
+        self.niranjan_lines = seven_bag(paths.NIRANJAN_LINES.read_text().splitlines(keepends=True))
 
     # mao rules
     @commands.hybrid_command(help="increment a card count for a user, as a consequence for breaking a Mao rule")
     async def give_card(self, ctx, user: discord.User, reason: str = '', ping: bool = True):
-        with paths.CARDS.open("r") as f:
-            cards = json.load(f)
+        cards = json.loads(paths.CARDS.read_text())
         user_id = str(user.id)
         if user_id not in cards:
             cards[user_id] = 0
         cards[user_id] += 1
-        with paths.CARDS.open("w") as f:
-            json.dump(cards, f, indent=4)
+        paths.CARDS.write_text(json.dumps(cards, indent=4))
         await send(ctx, f"{reason}{'\n' if reason else ''}{user.mention if ping else user.name} now has {cards[user_id]} card{pluralize(cards[user_id])}.")
     @commands.hybrid_command(help="check how many cards a user has")
     async def get_card_count(self, ctx, user: discord.User, ping: bool = True):
-        with paths.CARDS.open("r") as f:
-            cards = json.load(f)
+        cards = json.loads(paths.CARDS.read_text())
         user_id = str(user.id)
         count = cards.get(user_id, 0)
         await send(ctx, f"{user.mention if ping else user.name} has {count} card{pluralize(count)}.")
     @commands.hybrid_command(help="show the card counts for all users")
     async def leaderboard(self, ctx):
-        with paths.CARDS.open("r") as f:
-            cards = json.load(f)
+        cards = json.loads(paths.CARDS.read_text())
         if not cards:
             await send(ctx, "(empty)")
             return

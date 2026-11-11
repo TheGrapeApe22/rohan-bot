@@ -60,8 +60,7 @@ async def on_command_error(ctx, error):
         paths.TRACEBACKS.mkdir(parents=True, exist_ok=True)
         timestamp = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
         file_path = paths.TRACEBACKS / f"{timestamp}.txt"
-        with file_path.open("w") as f:
-            f.write(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
+        file_path.write_text(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
         await send_log(f'{get_command_header(ctx.interaction)}Error: ', bot, file=discord.File(file_path))
         raise error
 
