@@ -85,7 +85,7 @@ class Logging(commands.Cog):
     # .view
     @commands.hybrid_command(help="Views a log file. usage: `view mm-dd-yyyy` or `view N` (days ago)")
     async def view(self, ctx, *, log_file=None):
-        await enforce_whitelist(ctx, ctx.author.id)
+        await enforce_whitelist(ctx)
         await self.send_logs(ctx, log_file, include_hidden=False)
 
     # .view2

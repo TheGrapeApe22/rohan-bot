@@ -8,7 +8,7 @@ class Gifs(commands.Cog):
     
     @commands.hybrid_command(help="frick you heck anuraag middle finger")
     async def frick_you(self, ctx):
-        await enforce_whitelist(ctx, ctx.author.id)
+        await enforce_whitelist(ctx)
         await send(ctx, file=discord.File("assets/gifs/frick_you.png"))
 
     @commands.hybrid_command(help="david reaction gif")
@@ -25,17 +25,17 @@ class Gifs(commands.Cog):
 
     @commands.hybrid_command(help="niranjan winking raising eyebrows gif")
     async def niranjan_eyebrows(self, ctx):
-        await enforce_whitelist(ctx, ctx.author.id)
+        await enforce_whitelist(ctx)
         await send(ctx, file=discord.File("assets/gifs/niranjan_eyebrows.gif"))
 
     @commands.hybrid_command(help="live niranjan reaction standing motionless gif")
     async def live_niranjan_reaction(self, ctx):
-        await enforce_whitelist(ctx, ctx.author.id)
+        await enforce_whitelist(ctx)
         await send(ctx, file=discord.File("assets/gifs/live_niranjan_reaction.gif"))
 
     @commands.hybrid_command(help="niranjan rao snapping honor worship gif")
     async def honor_rao(self, ctx):
-        await enforce_whitelist(ctx, ctx.author.id)
+        await enforce_whitelist(ctx)
         await send(ctx, file=discord.File("assets/gifs/snap_at_niranjan.gif"))
 
     @commands.hybrid_command(help="bk boykisser zoom in gif")

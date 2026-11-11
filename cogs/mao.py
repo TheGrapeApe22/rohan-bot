@@ -72,7 +72,7 @@ class Mao(commands.Cog):
     # soliloquy
     @commands.hybrid_command(help="generate a soliloquy from inside jokes/copypastas")
     async def schizo_soliloquy(self, ctx, length: discord.app_commands.Range[int, 1, 25] = 1, include_image: bool = False):
-        await enforce_whitelist(ctx, ctx.author.id)
+        await enforce_whitelist(ctx)
         # if ctx.author.id == 335921289900589066: # mason
         #     roll = random.randint(1, 6)
         #     if roll == 6:
@@ -138,7 +138,7 @@ class Mao(commands.Cog):
 
     @commands.hybrid_command(help="add a line to david guoggins pretrained transformer gpt")
     async def add_gpt_line(self, ctx, line: str, source: str | None = None):
-        await enforce_whitelist(ctx, ctx.author.id)
+        await enforce_whitelist(ctx)
         if len(line) > 1900:
             await send(ctx, f"aborted; too long.")
             return
@@ -155,14 +155,14 @@ class Mao(commands.Cog):
 
     @commands.hybrid_command(help="list all lines from david guoggins pretrained transformer gpt")
     async def list_gpt_lines(self, ctx):
-        await enforce_whitelist(ctx, ctx.author.id)
+        await enforce_whitelist(ctx)
         lines = david_lines.all_lines()
         contents = json.dumps(lines, indent=4).encode("utf-8")
         await send(ctx, file=discord.File(io.BytesIO(contents), filename="david_lines.json"))
 
     @commands.hybrid_command(help="generate/get a line from david guoggins pretrained transformer gpt")
     async def guoggins_pretrained_transformer(self, ctx):
-        await enforce_whitelist(ctx, ctx.author.id)
+        await enforce_whitelist(ctx)
         line_object = david_lines.all_lines()[self.gpt_quote_indexes.get_item()]
         if line_object is None:
             await send(ctx, "No lines found.")
@@ -207,7 +207,7 @@ class Mao(commands.Cog):
     
     @commands.hybrid_command(help="send abomination image")
     async def abg(self, ctx, image: Literal['diggyhole.png', 'lord_of_feet.png', 'anuraag_mask.png', 'anuraag_normal_face.png', 'david_blurry_demonic.jpg', 'niranjan_abomination.png', 'niranjan_cutout.png', 'rohan.png', 'mason_demonic.jpg', 'random'] = 'random'):
-        await enforce_whitelist(ctx, ctx.author.id)
+        await enforce_whitelist(ctx)
         # anuraag_mask.png, anuraag_normal_face.png, david_blurry_demonic.jpg, diggyhole.png, lord_of_feet.png, niranjan_abomination.png, niranjan_cutout.png, rohan.png
 
         relative_probabilities = {
