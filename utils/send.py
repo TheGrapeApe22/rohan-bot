@@ -11,14 +11,8 @@ ctx_cache = {}
 
 async def _reply(ctx: commands.Context, **kwargs):
     if ctx.interaction:
-        return await ctx.send(
-            allowed_mentions=discord.AllowedMentions.none(),
-            **kwargs
-        )
-    return await ctx.message.reply(
-        allowed_mentions=discord.AllowedMentions.none(),
-        **kwargs
-    )
+        return await ctx.send(**kwargs)
+    return await ctx.message.reply(**kwargs)
 
 async def send(ctx: commands.Context, message: str=None, **kwargs):
     await defer(ctx, ephemeral=kwargs.get('ephemeral', False))
@@ -26,6 +20,7 @@ async def send(ctx: commands.Context, message: str=None, **kwargs):
         out = await _reply(
             ctx,
             content=length_proof(message) if message is not None else None,
+            allowed_mentions=discord.AllowedMentions.none(),
             **kwargs
         )
         ctx_cache[ctx.channel.id] = ctx
@@ -49,7 +44,11 @@ async def send(ctx: commands.Context, message: str=None, **kwargs):
 async def send_debug_log(message: str, bot: discord.Client, file: discord.File = None):
     log_channel = bot.get_channel(LOG_CHANNEL_ID)
     try:
-        await log_channel.send(length_proof(message), file=file)
+        await log_channel.send(
+            content=length_proof(message),
+            file=file,
+            allowed_mentions=discord.AllowedMentions.none()
+        )
     except Exception:
         print(f"Error in command: {message}")
 
