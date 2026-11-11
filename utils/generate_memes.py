@@ -43,6 +43,8 @@ def generate() -> None:
                 f"    async def {command_name}(self, ctx):",
             ]
         )
+        if command_name in metadata.get("private", []):
+            lines.append(f"        await enforce_whitelist(ctx)")
         if kind == "file":
             lines.append(f'        await send(ctx, file=discord.File("assets/gifs/{value}"))')
         else:

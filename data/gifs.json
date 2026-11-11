@@ -16,7 +16,8 @@
         "bk_boop": "boykisser touch nose blushing",
         "bk_crying": "boykisser sad tear",
         "bk_eyes": "boykisser big mesmerized blinking smooth brain kitty",
-        "honest_reactor": "mindustry my reaction"
+        "honest_reactor": "mindustry my reaction",
+        "mason_and_calvin_walking": "football"
     },
     "links": {
         "bk_lick": "https://tenor.com/view/licky-mauzymice-boykisser-gif-1303620811246816055",
@@ -30,5 +31,12 @@
         "bk_crying": "https://klipy.com/gifs/boykisser-boy-kisser-10",
         "bk_eyes": "https://klipy.com/gifs/smooth-brain-kitty",
         "honest_reactor": "https://klipy.com/gifs/my-honest-reaction-my-honest-reactor-1"
-    }
+    },
+    "private": [
+        "frick_you.png",
+        "honor_rao.gif",
+        "live_niranjan_reaction.gif",
+        "niranjan_explaining.gif",
+        "niranjan_eyebrows.gif"
+    ]
 }
