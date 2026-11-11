@@ -28,6 +28,7 @@ def generate() -> None:
         "from discord.ext import commands",
         "from utils.send import send",
         "from utils import file_paths as paths",
+        "from utils.perms import enforce_whitelist",
         "class Memes(commands.Cog):",
         "    def __init__(self, bot: commands.Bot):",
         "        self.bot = bot",
