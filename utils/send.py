@@ -12,7 +12,7 @@ ctx_cache = {}
 async def _reply(ctx: commands.Context, **kwargs):
     if ctx.interaction:
         return await ctx.send(**kwargs)
-    return await ctx.message.reply(**kwargs, mention_author=False)
+    return await ctx.message.reply(mention_author=False, **kwargs)
 
 async def send(ctx: commands.Context, message: str=None, **kwargs):
     await defer(ctx, ephemeral=kwargs.get('ephemeral', False))
