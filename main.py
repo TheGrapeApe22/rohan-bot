@@ -7,8 +7,7 @@ import logging
 from dotenv import load_dotenv
 import os
 
-from utils.reply import reply
-from utils.send import get_command_header, get_command_string, send_log
+from utils.send import get_command_header, send, send_debug_log
 from utils.generate_memes import generate as generate_memes
 from utils import file_paths as paths
 
@@ -52,16 +51,17 @@ async def on_ready():
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRole):
-        await reply(ctx.message, f"heck you {ctx.author.mention} (no perms)", )
+        await send(ctx, f"heck you {ctx.author.mention} (no perms)", )
     elif isinstance(error, PermissionError):
-        await send_log(f'{get_command_header(ctx.interaction)}PermissionError: {error}', bot)
+        await send_debug_log(f'{get_command_header(ctx.interaction)}PermissionError: {error}', bot)
     else:
         # write the error to a file and send it
         paths.TRACEBACKS.mkdir(parents=True, exist_ok=True)
         timestamp = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
         file_path = paths.TRACEBACKS / f"{timestamp}.txt"
         file_path.write_text(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
-        await send_log(f'{get_command_header(ctx.interaction)}Error: ', bot, file=discord.File(file_path))
+        
+        await send_debug_log(f'{get_command_header(ctx.interaction)}Error: ', bot, file=discord.File(file_path))
         raise error
 
 bot.run(

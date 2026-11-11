@@ -1,7 +1,7 @@
 import os
 import discord
 from discord.ext import commands
-from utils.send import get_command_string, send_log
+from utils.send import get_command_string, send_debug_log
 from utils import file_paths as paths
 
 MY_ID = int(os.getenv("MY_ID"))
@@ -52,7 +52,7 @@ class CommandAudit(commands.Cog):
         else:
             location += f' named [{channel.name}] in server named [{guild.name}] with id [{guild.id}]'
         
-        await send_log(f"<@{author_id}> used `{content}` in {location}.", self.bot)
+        await send_debug_log(f"<@{author_id}> used `{content}` in {location}.", self.bot)
 
     @commands.Cog.listener()
     async def on_command(self, ctx: commands.Context) -> None:

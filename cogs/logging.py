@@ -2,7 +2,6 @@ from discord.ext import commands
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from utils.perms import enforce_whitelist
-from utils.reply import reply
 from utils.send import send
 from utils import file_paths as paths
 

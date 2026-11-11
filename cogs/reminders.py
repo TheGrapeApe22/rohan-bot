@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands, tasks
 from dataclasses import dataclass
 from typing import Dict, Optional
-from utils.reply import reply
+from utils import send
 
 # cog managing reminder streams per user, each with its own loop, delay, etc.
 
@@ -63,19 +63,19 @@ class Reminders(commands.Cog):
     async def start(self, ctx):
         stream = self.get_stream(ctx)
         if stream.reminder_loop.is_running():
-            await reply(ctx.message, "already running")
+            await send(ctx, "already running")
             return
         stream.reminder_loop.start(ctx)
-        await reply(ctx.message, "started")
+        await send(ctx, "started")
 
     @commands.command(name="stop", help="Stops the reminder stream. Usage: `.stop`")
     async def stop(self, ctx):
         stream = self.get_stream(ctx)
         if not stream.reminder_loop.is_running():
-            await reply(ctx.message, "not running")
+            await send(ctx, "not running")
             return
         stream.reminder_loop.cancel()
-        await reply(ctx.message, "stopped")
+        await send(ctx, "stopped")
 
     @commands.command(name="setdelay", help="Sets the reminder delay in minutes. Usage: `.setdelay <minutes>`")
     async def setdelay(self, ctx, minutes: float):
@@ -84,37 +84,37 @@ class Reminders(commands.Cog):
         # set delay
         stream.delay_minutes = new_delay
         stream.reminder_loop.change_interval(minutes=new_delay)
-        await reply(ctx.message, f"delay changed to {new_delay} minutes")
+        await send(ctx, f"delay changed to {new_delay} minutes")
         if stream.reminder_loop.is_running():
             stream.reminder_loop.restart(ctx)
 
     @setdelay.error
     async def setdelay_error(self, ctx, error):
         if isinstance(error, commands.BadArgument):
-            await reply(ctx.message, "invalid minutes, please provide a single number (e.g., 5 or 0.5)")
+            await send(ctx, "invalid minutes, please provide a single number (e.g., 5 or 0.5)")
         else:
             raise error
 
     @commands.command(name="delay", help="Shows the current reminder delay in minutes. Usage: `.delay`")
     async def delay(self, ctx):
-        await reply(ctx.message, f"current delay is {self.get_stream(ctx).delay_minutes} minutes")
+        await send(ctx, f"current delay is {self.get_stream(ctx).delay_minutes} minutes")
     
     @commands.command(name="setmessage", help="Sets the reminder message content. Sends a template if no message provided. Usage: `.setmessage <message>`")
     async def setmessage(self, ctx, *, message: str=None):
         if message is None or message.strip() == "":
-            await reply(ctx.message, f"```.setmessage {self.get_stream(ctx).message_content}```")
+            await send(ctx, f"```.setmessage {self.get_stream(ctx).message_content}```")
             return
         self.get_stream(ctx).message_content = message
-        await reply(ctx.message, f"reminder message set!")
+        await send(ctx, f"reminder message set!")
     
     @commands.command(name="append", help="Appends text to the current reminder message content. Usage: `.append <text>`")
     async def append(self, ctx, *, text: str):
         stream = self.get_stream(ctx)
         if (len(stream.message_content) + len(text)) > 1000:
-            await reply(ctx.message, "heck you, message too long")
+            await send(ctx, "heck you, message too long")
             return
         stream.message_content += f"\n* {text}"
-        await reply(ctx.message, "text appended to reminder message")
+        await send(ctx, "text appended to reminder message")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Reminders(bot))

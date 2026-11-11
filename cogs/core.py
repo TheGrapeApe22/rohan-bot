@@ -1,5 +1,4 @@
 from discord.ext import commands
-from utils.reply import reply
 import asyncio
 from utils.send import send
 
@@ -13,7 +12,7 @@ class Core(commands.Cog):
         if message.author.bot:
             return
         if self.bot.user.mentioned_in(message): #type: ignore
-            await reply(message, f"heck you")
+            await message.reply(f"heck you")
         # await self.bot.process_commands(message)
 
     # .say
@@ -25,7 +24,7 @@ class Core(commands.Cog):
     @commands.command(name="ping", help="Pings the sender after 3 seconds. Usage: `.ping`")
     async def ping(self, ctx):
         await asyncio.sleep(3)
-        await reply(ctx.message, ctx.author.mention)
+        await send(ctx, ctx.author.mention)
 
     # servers
     @commands.command(name="servers", help="Lists all servers the bot is in. Usage: `.servers`")
