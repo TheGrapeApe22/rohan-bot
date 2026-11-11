@@ -52,7 +52,7 @@ async def on_ready():
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRole):
         await send(ctx, f"heck you {ctx.author.mention} (no perms)", )
-    elif isinstance(error, PermissionError):
+    elif isinstance(error, PermissionError) or (isinstance(error, commands.CommandInvokeError) and isinstance(error.original, PermissionError)):
         await send_debug_log(f'{get_command_header(ctx.interaction)}PermissionError: {error}', bot)
     else:
         # write the error to a file and send it
