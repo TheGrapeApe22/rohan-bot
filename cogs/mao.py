@@ -186,10 +186,13 @@ class Mao(commands.Cog):
 
     async def gpt_animation(self, ctx, initial: str, split_output: list, initial_delay: float = 1.0):
         # send initial message, wait a few seconds, then edit the message into output a few words at a time, as if it is outputting token by token
-        message = await send(ctx, initial)
+        message = await send(ctx, initial, allowed_mentions=discord.AllowedMentions.none())
         await asyncio.sleep(initial_delay)
         for i in range(len(split_output)):
-            await message.edit(content="".join(split_output[:i+1]))
+            await message.edit(
+                content="".join(split_output[:i+1]),
+                allowed_mentions=discord.AllowedMentions.none()
+            )
             # await asyncio.sleep(0.5)
     
     @commands.hybrid_command(help="send abomination image")
