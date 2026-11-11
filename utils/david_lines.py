@@ -1,10 +1,8 @@
 import sqlite3
 from contextlib import closing
-from pathlib import Path
+from utils import file_paths as paths
 
-
-DATABASE_PATH = Path("data/david_lines.sqlite3")
-
+DATABASE_PATH = paths.DAVID_LINES_DATABASE
 
 def initialize():
     with closing(sqlite3.connect(DATABASE_PATH)) as connection, connection:

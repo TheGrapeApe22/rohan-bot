@@ -2,7 +2,9 @@ import os
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-load_dotenv()
+from utils import file_paths as paths
+
+load_dotenv(paths.ENV)
 LOG_CHANNEL_ID = int(os.getenv("LOG_CHANNEL_ID"))
 
 cache = {}

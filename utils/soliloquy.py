@@ -1,10 +1,11 @@
 import random
 import re
 from utils.seven_bag import seven_bag
+from utils import file_paths as paths
 
-with open('assets/soliloquy/sentences.txt') as f:
+with paths.SENTENCES.open() as f:
     sentences = seven_bag([s for s in f.read().splitlines() if s])
-with open('assets/soliloquy/nouns.txt') as f:
+with paths.NOUNS.open() as f:
     nouns = seven_bag(f.read().splitlines())
 
 # replaces [noun] with random noun

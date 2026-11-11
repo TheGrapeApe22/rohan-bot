@@ -4,6 +4,7 @@ from datetime import date, timedelta
 from typing import Literal
 from urllib.parse import urlencode
 from utils.send import defer, send
+from utils import file_paths as paths
 import discord
 from discord.ext import commands
 
@@ -21,7 +22,7 @@ class LinkPreviews(commands.Cog):
         data = {k: v for k, v in locals().items() if k not in ['ctx', 'self', 'template'] and v is not None}
 
         # load templates
-        with open('data/article_templates.json', 'r') as f:
+        with paths.ARTICLE_TEMPLATES.open('r') as f:
             templates = json.load(f)        
         for k, v in templates[template].items():
             if k not in data:

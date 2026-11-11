@@ -1,10 +1,7 @@
 import json
-from utils.file_paths import ROOT
+from utils import file_paths as paths
 
-GIFS_DIR = ROOT / "assets" / "gifs"
-OUTPUT_PATH = ROOT / "cogs" / "memes.py"
-
-metadata = json.loads((ROOT / "data" / "gifs.json").read_text())
+metadata = json.loads(paths.GIF_METADATA.read_text())
 additional_keywords = metadata.get("keywords", {})
 
 def get_keywords(command_name: str) -> str:
@@ -18,7 +15,7 @@ def get_keywords(command_name: str) -> str:
 
 def generate() -> None:
     links = metadata.get("links", {})
-    files = sorted(path for path in GIFS_DIR.iterdir() if path.is_file())
+    files = sorted(path for path in paths.GIFS.iterdir() if path.is_file())
 
     commands = {}
     for path in files:
@@ -30,6 +27,7 @@ def generate() -> None:
         "import discord",
         "from discord.ext import commands",
         "from utils.send import send",
+        "from utils import file_paths as paths",
         "class Memes(commands.Cog):",
         "    def __init__(self, bot: commands.Bot):",
         "        self.bot = bot",
@@ -46,7 +44,7 @@ def generate() -> None:
         if command_name in metadata.get("private", []):
             lines.append(f"        await enforce_whitelist(ctx)")
         if kind == "file":
-            lines.append(f'        await send(ctx, file=discord.File("assets/gifs/{value}"))')
+            lines.append(f'        await send(ctx, file=discord.File(paths.GIFS / {value!r}))')
         else:
             lines.append(f"        await send(ctx, {value!r})")
         lines.append("")
@@ -58,7 +56,7 @@ def generate() -> None:
             "",
         ]
     )
-    OUTPUT_PATH.write_text("\n".join(lines))
+    paths.MEMES_COG.write_text("\n".join(lines))
 
 if __name__ == "__main__":
     generate()

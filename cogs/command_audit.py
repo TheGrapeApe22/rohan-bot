@@ -2,6 +2,7 @@ import os
 import discord
 from discord.ext import commands
 from utils.send import get_command_string, send_log
+from utils import file_paths as paths
 
 MY_ID = int(os.getenv("MY_ID"))
 
@@ -11,7 +12,7 @@ class CommandAudit(commands.Cog):
 
     @staticmethod
     def _listed_channel_ids() -> set[int]:
-        with open('data/ignore_channels.txt', "r", encoding="utf-8") as f:
+        with paths.IGNORE_CHANNELS.open("r", encoding="utf-8") as f:
             lines = f.readlines()
         return [int(line.strip()) for line in lines if line.strip() and not line.startswith("#")]
 

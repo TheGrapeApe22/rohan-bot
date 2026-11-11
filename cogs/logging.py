@@ -1,10 +1,10 @@
-import os
 from discord.ext import commands
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from utils.perms import enforce_whitelist
 from utils.reply import reply
 from utils.send import send
+from utils import file_paths as paths
 
 timezone = ZoneInfo("America/Los_Angeles")
 
@@ -15,19 +15,20 @@ class Logging(commands.Cog):
     @staticmethod
     def current_log_path():
         date = datetime.now(timezone).strftime("%m-%d-%Y")
-        return f"logs/{date}.txt"
+        return paths.LOGS / f"{date}.txt"
 
     @staticmethod
     def log_path_days_ago(days_ago: int):
         date = (datetime.now(timezone) - timedelta(days=days_ago)).strftime("%m-%d-%Y")
-        return f"logs/{date}.txt"
+        return paths.LOGS / f"{date}.txt"
 
     # .log
     @commands.hybrid_command(help="Logs an event with a timestamp. Usage: `.log <message>`")
     # @commands.has_role('grape')
     async def log(self, ctx, *, message):
         timestamp = ctx.message.created_at.astimezone(timezone).strftime('%I:%M:%S %p')
-        with open(self.current_log_path(), "a") as f:
+        paths.LOGS.mkdir(parents=True, exist_ok=True)
+        with self.current_log_path().open("a") as f:
             f.write(f'{timestamp} ({ctx.author.name}): {message}\n')
         if ctx.interaction is None:
             await ctx.message.add_reaction('🧀')
@@ -42,16 +43,15 @@ class Logging(commands.Cog):
             if query.isdigit():
                 path = self.log_path_days_ago(int(query))
             else:
-                path = f"logs/{query}.txt"
-        path = os.path.realpath(path)
+                path = paths.LOGS / f"{query}.txt"
+        path = path.resolve()
         
         # prevent directory traversal attack
-        logs_dir = os.path.realpath('logs')
-        if os.path.commonpath([path, logs_dir]) != os.path.commonpath([logs_dir]):
+        if not path.is_relative_to(paths.LOGS.resolve()):
             await send(ctx, "heck you (access denied)")
             return
         try:
-            with open(path, "r") as log_file:
+            with path.open("r") as log_file:
                 lines = log_file.readlines()
                 if not include_hidden:
                     lines = [line for line in lines if not line.startswith('*')]
@@ -76,7 +76,7 @@ class Logging(commands.Cog):
                 if not chunks:
                     chunks = [["(no visible log lines)\n"]]
 
-                await send(ctx, f"-# {path[-14:-4]}\n```{''.join(chunks[0])}```")
+                await send(ctx, f"-# {path.stem}\n```{''.join(chunks[0])}```")
                 for chunk in chunks[1:min(6, len(chunks))]: # limit to 6 chunks
                     await send(ctx, f"```{''.join(chunk)}```")
         except FileNotFoundError:

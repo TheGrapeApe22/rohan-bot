@@ -8,7 +8,7 @@ from utils.soliloquy import construct_abomination
 from utils.seven_bag import seven_bag
 from utils import david_lines
 from utils.send import send
-from pathlib import Path
+from utils import file_paths as paths
 import json
 import discord
 from discord.ext import commands
@@ -21,43 +21,35 @@ class Mao(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-        self.folder_path = Path("assets/soliloquy/attachments")
-        self.soliloquy_images = seven_bag([f'{self.folder_path}/{f.name}' for f in self.folder_path.iterdir()])
+        self.soliloquy_images = seven_bag(list(paths.SOLILOQUY_ATTACHMENTS.iterdir()))
 
         self.reset_gpt_seven_bag()
 
-        # abgs = [str(f) for f in Path('assets/abg').iterdir() if f.is_file()]
-        # for i in range(len(abgs)):
-        #     abg = abgs[i]
-        #     if abg[-5] not in ['1', '2']:
-        #         abgs.append(abg)
-        # self.abg_bag = seven_bag(abgs)
-
-        with open('data/niranjan_lines.txt', 'r') as f:
+        with paths.NIRANJAN_LINES.open('r') as f:
             self.niranjan_lines = seven_bag(f.readlines())
 
     # mao rules
     @commands.hybrid_command(help="increment a card count for a user, as a consequence for breaking a Mao rule")
     async def give_card(self, ctx, user: discord.User, reason: str = '', ping: bool = True):
-        with open("data/cards.json", "r") as f:
+        with paths.CARDS.open("r") as f:
             cards = json.load(f)
         user_id = str(user.id)
         if user_id not in cards:
             cards[user_id] = 0
         cards[user_id] += 1
-        with open("data/cards.json", "w") as f:
+        with paths.CARDS.open("w") as f:
             json.dump(cards, f, indent=4)
         await send(ctx, f"{reason}{'\n' if reason else ''}{user.mention if ping else user.name} now has {cards[user_id]} card{pluralize(cards[user_id])}.")
     @commands.hybrid_command(help="check how many cards a user has")
     async def get_card_count(self, ctx, user: discord.User, ping: bool = True):
-        with open("data/cards.json", "r") as f:
+        with paths.CARDS.open("r") as f:
             cards = json.load(f)
         user_id = str(user.id)
         count = cards.get(user_id, 0)
         await send(ctx, f"{user.mention if ping else user.name} has {count} card{pluralize(count)}.")
     @commands.hybrid_command(help="show the card counts for all users")
     async def leaderboard(self, ctx):
-        with open("data/cards.json", "r") as f:
+        with paths.CARDS.open("r") as f:
             cards = json.load(f)
         if not cards:
             await send(ctx, "(empty)")
@@ -227,7 +219,7 @@ class Mao(commands.Cog):
         else:
             selected_image = image
         
-        await send(ctx, file=discord.File(f'assets/abg/{selected_image}'))
+        await send(ctx, file=discord.File(paths.ABG / selected_image))
 
 async def setup(bot: commands.Bot):
     david_lines.initialize()
