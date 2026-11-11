@@ -9,6 +9,7 @@ import os
 
 from utils.reply import reply
 from utils.send import get_command_header, get_command_string, send_log
+from utils.generate_memes import generate as generate_memes
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
@@ -30,6 +31,10 @@ class MyBot(commands.Bot):
             intents=intents,
             tree_cls=CustomCommandTree
         )
+        try:
+            generate_memes()
+        except Exception as e:
+            print(f"Error during initialization: {e}")
     async def setup_hook(self):
         for filename in os.listdir('./cogs'):
             if filename.endswith('.py'):
