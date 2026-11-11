@@ -58,7 +58,7 @@ async def on_command_error(ctx, error):
     if _error_is(error, commands.MissingRole):
         await send(ctx, f"heck you {ctx.author.mention} (no perms)", )
     elif _error_is(error, PermissionError):
-        await send_debug_log(f'{get_command_header(ctx.interaction)}PermissionError: {error}', bot)
+        await send_debug_log(f'{get_command_header(ctx)}PermissionError: {error}', bot)
     else:
         # write the error to a file and send it
         paths.TRACEBACKS.mkdir(parents=True, exist_ok=True)
@@ -66,7 +66,7 @@ async def on_command_error(ctx, error):
         file_path = paths.TRACEBACKS / f"{timestamp}.txt"
         file_path.write_text(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
         
-        await send_debug_log(f'{get_command_header(ctx.interaction)}Error: ', bot, file=discord.File(file_path))
+        await send_debug_log(f'{get_command_header(ctx)}Error: ', bot, file=discord.File(file_path))
         raise error
 
 bot.run(

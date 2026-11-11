@@ -11,8 +11,14 @@ ctx_cache = {}
 
 async def _reply(ctx: commands.Context, **kwargs):
     if ctx.interaction:
-        return await ctx.send(**kwargs)
-    return await ctx.message.reply(mention_author=False, **kwargs)
+        return await ctx.send(
+            allowed_mentions=discord.AllowedMentions.none(),
+            **kwargs
+        )
+    return await ctx.message.reply(
+        allowed_mentions=discord.AllowedMentions.none(),
+        **kwargs
+    )
 
 async def send(ctx: commands.Context, message: str=None, **kwargs):
     await defer(ctx, ephemeral=kwargs.get('ephemeral', False))
@@ -26,14 +32,18 @@ async def send(ctx: commands.Context, message: str=None, **kwargs):
         return out
     except discord.errors.NotFound:
         if ctx.channel.id in ctx_cache:
-            message = get_command_header(ctx.interaction) + (message or '')
+            message = get_command_header(ctx) + (message or '')
             message = length_proof(message)
             try:
-                return await ctx_cache[ctx.channel.id].send(message, **kwargs)
+                return await ctx_cache[ctx.channel.id].send(
+                    message,
+                    allowed_mentions=discord.AllowedMentions.none(),
+                    **kwargs
+                )
             except (discord.errors.NotFound, discord.errors.Forbidden):
-                await send_debug_log(f"{get_command_header(ctx.interaction)}cached ctx is expired.", ctx.bot)
+                await send_debug_log(f"{get_command_header(ctx)}cached ctx is expired.", ctx.bot)
         else:
-            await send_debug_log(f"{get_command_header(ctx.interaction)}no cached ctx to send command", ctx.bot)
+            await send_debug_log(f"{get_command_header(ctx)}no cached ctx to send command", ctx.bot)
     return None
 
 async def send_debug_log(message: str, bot: discord.Client, file: discord.File = None):
@@ -50,8 +60,12 @@ def get_command_string(interaction: discord.Interaction):
         command_str += f" {option['name']}: {option['value']}"
     return command_str
 
-def get_command_header(interaction: discord.Interaction) -> str:
-    return f'-# {interaction.user.name} used `{get_command_string(interaction)}`\n'
+def get_command_header(ctx: commands.Context) -> str:
+    if ctx.interaction:
+        interaction = ctx.interaction
+        return f'-# <@{interaction.user.id}> used `{get_command_string(interaction)}`\n'
+    else:
+        return f'-# <@{ctx.author.id}> used `{ctx.message.content}`\n'
 
 def length_proof(message: str) -> str:
     if len(message) > 2000:
