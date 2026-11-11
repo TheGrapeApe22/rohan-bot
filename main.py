@@ -47,12 +47,20 @@ bot = MyBot()
 async def on_ready():
     print(f"{bot.user.name} is now running.")
 
+def _error_is(error, *types):
+    if isinstance(error, *types):
+        return True
+    if isinstance(error, commands.CommandInvokeError) or isinstance(error, commands.HybridCommandError):
+        return _error_is(error.original, *types)
+    return False
+
 # error handling for all cogs
 @bot.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.MissingRole):
+    if _error_is(error, commands.MissingRole):
         await send(ctx, f"heck you {ctx.author.mention} (no perms)", )
-    elif isinstance(error, PermissionError) or (isinstance(error, commands.CommandInvokeError) and isinstance(error.original, PermissionError)):
+    elif (
+        _error_is(error, PermissionError)):
         await send_debug_log(f'{get_command_header(ctx.interaction)}PermissionError: {error}', bot)
     else:
         # write the error to a file and send it
