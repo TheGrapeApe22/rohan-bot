@@ -3,6 +3,8 @@ venv
 .venv
 **/__pycache__
 
+cogs/memes.py
+
 logs/*
 !logs/test.txt
 

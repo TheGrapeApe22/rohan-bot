@@ -8,7 +8,7 @@ from utils.soliloquy import construct_abomination
 from utils.seven_bag import seven_bag
 from utils import david_lines
 from utils.send import send
-from pathlib import Path
+from utils import file_paths as paths
 import json
 import discord
 from discord.ext import commands
@@ -21,44 +21,31 @@ class Mao(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-        self.folder_path = Path("assets/soliloquy/attachments")
-        self.soliloquy_images = seven_bag([f'{self.folder_path}/{f.name}' for f in self.folder_path.iterdir()])
+        self.soliloquy_images = seven_bag(list(paths.SOLILOQUY_ATTACHMENTS.iterdir()))
 
         self.reset_gpt_seven_bag()
 
-        # abgs = [str(f) for f in Path('assets/abg').iterdir() if f.is_file()]
-        # for i in range(len(abgs)):
-        #     abg = abgs[i]
-        #     if abg[-5] not in ['1', '2']:
-        #         abgs.append(abg)
-        # self.abg_bag = seven_bag(abgs)
-
-        with open('data/niranjan_lines.txt', 'r') as f:
-            self.niranjan_lines = seven_bag(f.readlines())
+        self.niranjan_lines = seven_bag(paths.NIRANJAN_LINES.read_text().splitlines(keepends=True))
 
     # mao rules
     @commands.hybrid_command(help="increment a card count for a user, as a consequence for breaking a Mao rule")
     async def give_card(self, ctx, user: discord.User, reason: str = '', ping: bool = True):
-        with open("data/cards.json", "r") as f:
-            cards = json.load(f)
+        cards = json.loads(paths.CARDS.read_text())
         user_id = str(user.id)
         if user_id not in cards:
             cards[user_id] = 0
         cards[user_id] += 1
-        with open("data/cards.json", "w") as f:
-            json.dump(cards, f, indent=4)
+        paths.CARDS.write_text(json.dumps(cards, indent=4))
         await send(ctx, f"{reason}{'\n' if reason else ''}{user.mention if ping else user.name} now has {cards[user_id]} card{pluralize(cards[user_id])}.")
     @commands.hybrid_command(help="check how many cards a user has")
     async def get_card_count(self, ctx, user: discord.User, ping: bool = True):
-        with open("data/cards.json", "r") as f:
-            cards = json.load(f)
+        cards = json.loads(paths.CARDS.read_text())
         user_id = str(user.id)
         count = cards.get(user_id, 0)
         await send(ctx, f"{user.mention if ping else user.name} has {count} card{pluralize(count)}.")
     @commands.hybrid_command(help="show the card counts for all users")
     async def leaderboard(self, ctx):
-        with open("data/cards.json", "r") as f:
-            cards = json.load(f)
+        cards = json.loads(paths.CARDS.read_text())
         if not cards:
             await send(ctx, "(empty)")
             return
@@ -72,7 +59,7 @@ class Mao(commands.Cog):
     # soliloquy
     @commands.hybrid_command(help="generate a soliloquy from inside jokes/copypastas")
     async def schizo_soliloquy(self, ctx, length: discord.app_commands.Range[int, 1, 25] = 1, include_image: bool = False):
-        await enforce_whitelist(ctx, ctx.author.id)
+        await enforce_whitelist(ctx)
         # if ctx.author.id == 335921289900589066: # mason
         #     roll = random.randint(1, 6)
         #     if roll == 6:
@@ -138,7 +125,7 @@ class Mao(commands.Cog):
 
     @commands.hybrid_command(help="add a line to david guoggins pretrained transformer gpt")
     async def add_gpt_line(self, ctx, line: str, source: str | None = None):
-        await enforce_whitelist(ctx, ctx.author.id)
+        await enforce_whitelist(ctx)
         if len(line) > 1900:
             await send(ctx, f"aborted; too long.")
             return
@@ -155,14 +142,14 @@ class Mao(commands.Cog):
 
     @commands.hybrid_command(help="list all lines from david guoggins pretrained transformer gpt")
     async def list_gpt_lines(self, ctx):
-        await enforce_whitelist(ctx, ctx.author.id)
+        await enforce_whitelist(ctx)
         lines = david_lines.all_lines()
         contents = json.dumps(lines, indent=4).encode("utf-8")
         await send(ctx, file=discord.File(io.BytesIO(contents), filename="david_lines.json"))
 
     @commands.hybrid_command(help="generate/get a line from david guoggins pretrained transformer gpt")
     async def guoggins_pretrained_transformer(self, ctx):
-        await enforce_whitelist(ctx, ctx.author.id)
+        await enforce_whitelist(ctx)
         line_object = david_lines.all_lines()[self.gpt_quote_indexes.get_item()]
         if line_object is None:
             await send(ctx, "No lines found.")
@@ -199,15 +186,18 @@ class Mao(commands.Cog):
 
     async def gpt_animation(self, ctx, initial: str, split_output: list, initial_delay: float = 1.0):
         # send initial message, wait a few seconds, then edit the message into output a few words at a time, as if it is outputting token by token
-        message = await send(ctx, initial)
+        message = await send(ctx, initial, allowed_mentions=discord.AllowedMentions.none())
         await asyncio.sleep(initial_delay)
         for i in range(len(split_output)):
-            await message.edit(content="".join(split_output[:i+1]))
+            await message.edit(
+                content="".join(split_output[:i+1]),
+                allowed_mentions=discord.AllowedMentions.none()
+            )
             # await asyncio.sleep(0.5)
     
     @commands.hybrid_command(help="send abomination image")
-    async def abg(self, ctx):
-        await enforce_whitelist(ctx, ctx.author.id)
+    async def abg(self, ctx, image: Literal['diggyhole.png', 'lord_of_feet.png', 'anuraag_mask.png', 'anuraag_normal_face.png', 'david_blurry_demonic.jpg', 'niranjan_abomination.png', 'niranjan_cutout.png', 'rohan.png', 'mason_demonic.jpg', 'random'] = 'random'):
+        await enforce_whitelist(ctx)
         # anuraag_mask.png, anuraag_normal_face.png, david_blurry_demonic.jpg, diggyhole.png, lord_of_feet.png, niranjan_abomination.png, niranjan_cutout.png, rohan.png
 
         relative_probabilities = {
@@ -218,12 +208,16 @@ class Mao(commands.Cog):
             'david_blurry_demonic.jpg': 1,
             'niranjan_abomination.png': 0.5,
             'niranjan_cutout.png': 0.5,
-            'rohan.png': 1
+            'rohan.png': 1,
+            'mason_demonic.jpg': 1
         }
         # Use the relative probabilities to create a weighted selection
-        selected_image = random.choices(list(relative_probabilities.keys()), weights=list(relative_probabilities.values()))[0]
+        if image == 'random':
+            selected_image = random.choices(list(relative_probabilities.keys()), weights=list(relative_probabilities.values()))[0]
+        else:
+            selected_image = image
         
-        await send(ctx, file=discord.File(f'assets/abg/{selected_image}'))
+        await send(ctx, file=discord.File(paths.ABG / selected_image))
 
 async def setup(bot: commands.Bot):
     david_lines.initialize()
