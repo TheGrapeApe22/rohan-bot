@@ -51,7 +51,7 @@ class LinkPreviews(commands.Cog):
         if len(out) > 2000:
             await send(ctx, f"Message ({len(out)} characters) too long to send.")
         else:
-            await send(ctx, out, allowed_mentions=discord.AllowedMentions.none())
+            await send(ctx, out)
 
     @commands.hybrid_command(help="convert link to rickroll link (note: fails if the url redirects)")
     async def rickroll(self, ctx, link: str, output: Literal['link', 'breaking_news command'] = 'link'):
