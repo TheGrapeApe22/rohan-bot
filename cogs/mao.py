@@ -219,6 +219,11 @@ class Mao(commands.Cog):
         
         await send(ctx, file=discord.File(paths.ABG / selected_image))
 
+    @commands.hybrid_command(help="anuraag kabe gpt")
+    async def anuraag_gpt(self, ctx):
+        enforce_whitelist(ctx)
+        await ctx.send("Fuck you.")
+
 async def setup(bot: commands.Bot):
     david_lines.initialize()
     await bot.add_cog(Mao(bot))
