@@ -1,6 +1,9 @@
+import discord
 from discord.ext import commands
 import asyncio
 from utils.send import send
+from utils.blind_3x3_practice import generate_practice
+from io import BytesIO
 
 class Core(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -38,6 +41,13 @@ class Core(commands.Cog):
     async def delay5(self, ctx):
         await asyncio.sleep(5)
         await send(ctx, "5 seconds have passed.")
+
+    @commands.hybrid_command()
+    async def blind(self, ctx, scramble: str=None, seed: int=None):
+        result = generate_practice(scramble, seed)
+        image = discord.File(BytesIO(result.image), filename="scrambled_cube.png")
+        out = f"-# Seed: `{result.seed}`\nScramble: `{result.scramble}`\nCorners: ||`{result.corners}`||\nEdges: ||`{result.edges}`||"
+        await send(ctx, out, file=image)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Core(bot))

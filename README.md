@@ -19,3 +19,4 @@ here's a rundown of the cogs:
     * translate a message to a programming language! includes sanitization
     * guoggins pretrained transformer: archive and regurgitate quotes from the amazing guoggins. uses sqlite3.
 * `reminders`: for servers, send a custom message periodically, for reminding you to lock in.
+* `core/blind`: generate a 3x3 Rubik's cube scramble and provide edge+corner tracing solutions + image of the scramble.

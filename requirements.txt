@@ -3,3 +3,4 @@ python-dotenv
 requests
 playwright
 beautifulsoup4
+Pillow
