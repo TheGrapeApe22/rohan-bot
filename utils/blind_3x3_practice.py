@@ -12,6 +12,7 @@ from collections import deque
 from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
+from threading import Lock
 from PIL import Image, ImageDraw
 
 # A facelet is (cubie coordinate, outward normal). Coordinates use x=R,
@@ -36,6 +37,7 @@ NORMALS = {"U": (0, 1, 0), "D": (0, -1, 0), "R": (1, 0, 0),
            "L": (-1, 0, 0), "F": (0, 0, 1), "B": (0, 0, -1)}
 COLORS = {"U": "#ffffff", "D": "#fff200", "F": "#00d948",
           "B": "#2563eb", "R": "#dc2626", "L": "#f97316"}
+_SOLVER_LOCK = Lock()
 
 
 def facelets(groups):
@@ -78,13 +80,56 @@ def apply_move(state, move):
             state[letter] = (rotate_vec(pos, axis, q), rotate_vec(normal, axis, q))
 
 
-def random_scramble(length, rng):
-    faces = "UDLRFB"
-    result, previous = [], None
-    for _ in range(length):
-        face = rng.choice([f for f in faces if f != previous])
-        result.append(face + rng.choice(("", "'", "2")))
-        previous = face
+def random_scramble(seed):
+    """Generate a seeded random-state 3x3 scramble with rubik-solver-py."""
+    from rubik_solver import Cube, solve
+
+    rng = random.Random(seed)
+    cube = Cube()
+    corners = list(range(8))
+    edges = list(range(12))
+    rng.shuffle(corners)
+    rng.shuffle(edges)
+    cube.cp[:] = bytes(corners)
+    cube.ep[:] = bytes(edges)
+    if cube.corner_parity() != cube.edge_parity():
+        cube.ep[0], cube.ep[1] = cube.ep[1], cube.ep[0]
+    twists = [rng.randrange(3) for _ in range(7)]
+    flips = [rng.randrange(2) for _ in range(11)]
+    cube.co[:] = bytes(twists + [(-sum(twists)) % 3])
+    cube.eo[:] = bytes(flips + [(-sum(flips)) % 2])
+
+    with _SOLVER_LOCK:
+        solution = solve(cube)
+    if solution is None:
+        raise RuntimeError("random cube state could not be solved")
+    return simplify_parallel_moves(Cube.inverse(solution).split())
+
+
+def simplify_parallel_moves(moves):
+    """Combine commuting turns of opposite faces within each axis block."""
+    axis = {face: index for index, pair in enumerate(("UD", "LR", "FB"))
+            for face in pair}
+    result = []
+    block = []
+
+    def flush():
+        if not block:
+            return
+        totals = {face: 0 for face in "UDLRFB"}
+        for move in block:
+            totals[move[0]] += {"": 1, "2": 2, "'": 3}[move[1:]]
+        for face in "UDLRFB":
+            suffix = {0: None, 1: "", 2: "2", 3: "'"}[totals[face] % 4]
+            if suffix is not None:
+                result.append(face + suffix)
+        block.clear()
+
+    for move in moves:
+        if block and axis[move[0]] != axis[block[0][0]]:
+            flush()
+        block.append(move)
+    flush()
     return result
 
 
@@ -140,20 +185,32 @@ def cycles(groups, buffer, scramble):
     for start in starts:
         if piece[start] in visited_pieces:
             continue
-        cycle, current = [], start
+        sequence, current = [], start
         while piece[current] not in visited_pieces:
             visited_pieces.add(piece[current])
-            cycle.append(current)
+            sequence.append(current)
             current = occupant[current]
-        if len(cycle) > 1 or permutation[start] != start:
-            if piece[current] != piece[buffer]:
-                cycle.append(current)
-            result.append(cycle)
+        if len(sequence) > 1 or permutation[start] != start:
+            ends_at_buffer = piece[current] == piece[buffer]
+            starting_stickers = [start] + [letter for letter in initial
+                                           if piece[letter] == piece[start]
+                                           and letter != start]
+            options = []
+            for sticker in starting_stickers:
+                option, current = [], sticker
+                for _ in sequence:
+                    option.append(current)
+                    current = occupant[current]
+                if not ends_at_buffer:
+                    option.append(current)
+                options.append("".join(option))
+            result.append(options)
     return result
 
 
 def format_cycles(cycle_list):
-    return " ".join("".join(cycle) for cycle in cycle_list) or "(solved)"
+    return " ".join("[" + " / ".join(options) + "]"
+                    for options in cycle_list) or "(solved)"
 
 
 def scrambled_stickers(scramble):
@@ -236,12 +293,12 @@ class Practice:
 
 
 def generate_practice(scramble: str | None = None, seed: int | None = None,
-                      *, length: int = 20, edge_buffer: str = "B",
+                      *, edge_buffer: str = "B",
                       corner_buffer: str = "A") -> Practice:
     """Create one scramble, both Speffz traces, and its PNG image."""
     if scramble is None:
         seed = seed if seed is not None else random.SystemRandom().getrandbits(64)
-        moves = random_scramble(length, random.Random(seed))
+        moves = random_scramble(seed)
     else:
         moves = scramble.split()
         seed = None
@@ -260,7 +317,6 @@ def generate_practice(scramble: str | None = None, seed: int | None = None,
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--length", type=int, default=20, help="random-move count (default: 20)")
     parser.add_argument("--edge-buffer", default="B", help="edge buffer sticker A-X (default B / UR)")
     parser.add_argument("--corner-buffer", default="A", help="corner buffer sticker A-X (default A / UBL)")
     parser.add_argument("--seed", type=int, help="optional random seed for repeatable practice")
@@ -268,12 +324,10 @@ def main():
     parser.add_argument("--image", default="scrambled_cube.png",
                         help="output PNG path (default: scrambled_cube.png)")
     args = parser.parse_args()
-    if args.length < 1:
-        parser.error("--length must be at least 1")
     for kind, value in (("edge", args.edge_buffer), ("corner", args.corner_buffer)):
         if len(value) != 1 or value.upper() not in "ABCDEFGHIJKLMNOPQRSTUVWX":
             parser.error(f"--{kind}-buffer must be a letter from A to X")
-    result = generate_practice(args.scramble, args.seed, length=args.length,
+    result = generate_practice(args.scramble, args.seed,
                                edge_buffer=args.edge_buffer,
                                corner_buffer=args.corner_buffer)
     print(result.content)
