@@ -3,4 +3,5 @@ python-dotenv
 requests
 playwright
 beautifulsoup4
-Pillow
+Pillow>=10
+rubik-solver-py==0.1.1
